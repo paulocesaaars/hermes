@@ -1,0 +1,61 @@
+@import "assets/scss/variables.scss";
+@import "assets/scss/material.scss";
+
+* {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  box-sizing: border-box;
+}
+
+a {
+  text-decoration: none !important;
+  color: $deviot-link-color;
+}
+
+.deviot-container {
+  padding: 20px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.deviot-spacer {
+  flex: 1 1 auto;
+}
+
+.deviot-filter {
+  padding-top: 20px;
+  background-color: #fff;
+
+  .deviot-form {
+    display: grid;
+    width: 100%;
+  }
+
+  .mat-form-field-wrapper {
+    padding-bottom: 0px;
+  }
+}
+
+.deviot-card {
+  display: flex;
+  align-items: center;
+  padding: 15px 15px;
+  margin-top: 20px;
+  background: #ffffff;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+  border-left-width: 6px;
+  border-left-style: solid;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  color: #333;
+  text-transform: uppercase;
+}
+
+.deviot-card-enabled {
+  border-left-color: #44bb84;
+}
+
+.deviot-card-disabled {
+  border-left-color: #666;
+}

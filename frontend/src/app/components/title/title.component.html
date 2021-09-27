@@ -1,0 +1,14 @@
+<mat-toolbar color="primary" class="deviot-title">
+  <div class="deviot-logo">
+    <img src="../../../assets/images/logo.png" />
+  </div>
+  <!-- <span>HERMES</span> -->
+  <div>
+    <button mat-button [routerLink]="['/user']">USUÁRIOS</button>
+    <button mat-button [routerLink]="['/device']">DISPOSITIVOS</button>
+    <button mat-button [routerLink]="['/broker']">SERVIDORES</button>
+  </div>
+  <div>
+    <button mat-raised-button [routerLink]="['/login']">Logout</button>
+  </div>
+</mat-toolbar>

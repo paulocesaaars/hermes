@@ -1,0 +1,48 @@
+<div class="deviot-login-page">
+  <div class="deviot-login-box">
+    <div class="deviot-logo">
+      <img
+        src="../../../assets/images/logo-login.png"
+        alt="Modulo de prosução"
+      />
+    </div>
+    <form (ngSubmit)="login()" [formGroup]="form" class="deviot-form">
+      <mat-form-field appearance="outline" class="deviot-form-username">
+        <mat-label>Login</mat-label>
+        <input type="text" matInput formControlName="userName" />
+        <mat-error *ngIf="form.controls['userName'].hasError('required')">
+          O campo nome de usuário é requerido.
+        </mat-error>
+        <mat-error *ngIf="form.controls['userName'].hasError('minlength')">
+          O campo nome de usuário precisa ter no mínimo 3 caracteres.
+        </mat-error>
+        <mat-error *ngIf="form.controls['userName'].hasError('maxlength')">
+          O campo nome de usuário precisa ter no máximo 30 caracteres.
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="deviot-form-password">
+        <mat-label>Senha</mat-label>
+        <input type="password" matInput formControlName="password" />
+        <mat-error *ngIf="form.controls['password'].hasError('required')">
+          O campo senha é requerido.
+        </mat-error>
+        <mat-error *ngIf="form.controls['password'].hasError('minlength')">
+          O campo senha precisa ter no mínimo 6 caracteres.
+        </mat-error>
+      </mat-form-field>
+
+      <button
+        mat-flat-button
+        color="primary"
+        class="deviot-bt-login"
+        type="submit"
+      >
+        ENTRAR
+      </button>
+    </form>
+    <div class="deviot-bottom">
+      {{ errorMessage }}
+    </div>
+  </div>
+</div>

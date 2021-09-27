@@ -1,0 +1,28 @@
+FROM mcr.microsoft.com/dotnet/aspnet:5.0-buster-slim AS base
+RUN apt-get update
+ENV TZ=America/Sao_Paulo
+WORKDIR /app
+EXPOSE 80
+EXPOSE 443
+
+FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
+WORKDIR /backend
+COPY ["backend/Deviot.Hermes.Api/Deviot.Hermes.Api.csproj", "backend/Deviot.Hermes.Api/"]
+COPY ["backend/Deviot.Hermes.Data/Deviot.Hermes.Data.csproj", "backend/Deviot.Hermes.Data/"]
+COPY ["backend/Deviot.Hermes.Business/Deviot.Hermes.Business.csproj", "backend/Deviot.Hermes.Business/"]
+RUN dotnet restore "backend/Deviot.Hermes.Api/Deviot.Hermes.Api.csproj"
+COPY . .
+WORKDIR "/backend/backend/Deviot.Hermes.Api"
+RUN dotnet build "Deviot.Hermes.Api.csproj" -c Release -o /app/build
+
+FROM build AS publish
+RUN dotnet publish "Deviot.Hermes.Api.csproj" -c Release -o /app/publish
+
+# Change timezone to local time
+ENV TZ=America/Sao_Paulo
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "Deviot.Hermes.Api.dll"]

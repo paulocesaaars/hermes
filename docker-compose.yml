@@ -1,0 +1,11 @@
+version: '3.4'
+
+services:
+  app:
+    image: hermes.modbustcp.app
+    build:
+      context: .
+      dockerfile: WebApp-Dockerfile
+    ports:
+        - "80:80"
+        - "443:443"

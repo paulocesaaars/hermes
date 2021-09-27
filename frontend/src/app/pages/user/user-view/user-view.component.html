@@ -1,0 +1,26 @@
+<app-title></app-title>
+<div class="deviot-container">
+  <mat-toolbar>
+    <span>VISUALIZAR USUÁRIO</span>
+    <span class="deviot-spacer"></span>
+  </mat-toolbar>
+
+  <div class="deviot-data">
+    <p><b>Id:</b> {{ user?.id | uppercase }}</p>
+    <p><b>Nome de usuário:</b> {{ user?.userName | uppercase }}</p>
+    <p><b>Nome completo:</b> {{ user?.fullName | uppercase }}</p>
+    <p>
+      <b>Status:</b>
+      {{ (user?.enabled ? "Habilitado" : "Desabilitado") | uppercase }}
+      &nbsp; &nbsp;
+      <b>Tipo de usuário:</b>
+      {{ (user?.administrator ? "Administrador" : "Normal") | uppercase }}
+    </p>
+  </div>
+  <mat-toolbar>
+    <span class="deviot-spacer"></span>
+    <button mat-flat-button color="basic" [routerLink]="['/user']">
+      VOLTAR
+    </button>
+  </mat-toolbar>
+</div>

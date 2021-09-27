@@ -1,0 +1,81 @@
+<app-title></app-title>
+<div class="deviot-container">
+  <mat-toolbar>
+    <span>USUÁRIOS</span>
+    <span class="deviot-spacer"></span>
+    <button
+      mat-flat-button
+      color="primary"
+      *ngIf="userLogin?.administrator ?? false"
+      [routerLink]="['/user/new']"
+    >
+      ADICIONAR
+    </button>
+  </mat-toolbar>
+
+  <div class="deviot-filter">
+    <form (ngSubmit)="getUsers()" [formGroup]="form">
+      <mat-form-field appearance="outline" class="deviot-form">
+        <mat-label>Filtrar</mat-label>
+        <input type="text" matInput formControlName="name" />
+        <button type="submit" mat-button matSuffix mat-icon-button>
+          <mat-icon>search</mat-icon>
+        </button>
+      </mat-form-field>
+    </form>
+  </div>
+
+  <div class="deviot-not-found" *ngIf="users.length == 0; else usuarios">
+    Nenhum usuário foi encontrado.
+  </div>
+  <ng-template #usuarios>
+    <div
+      *ngFor="let user of users"
+      class="deviot-card"
+      [ngClass]="user.enabled ? 'deviot-card-enabled' : 'deviot-card-disabled'"
+    >
+      <mat-icon
+        aria-hidden="false"
+        aria-label="Usuario administrador"
+        class="deviot-icon"
+      >
+        {{ user.administrator ? "manage_accounts" : "person" }}
+      </mat-icon>
+      <div>
+        {{ user.fullName }}
+      </div>
+      <span class="deviot-spacer"></span>
+      <button
+        mat-icon-button
+        aria-label="Visualizar"
+        [routerLink]="['/user/view', user.id]"
+      >
+        <mat-icon>visibility</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        aria-label="Editar"
+        *ngIf="userLogin?.administrator ?? false"
+        [routerLink]="['/user/edit', user.id]"
+      >
+        <mat-icon>edit</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        aria-label="Deletar"
+        *ngIf="userLogin?.administrator ?? false"
+        (click)="remove(user.id)"
+      >
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+    <mat-paginator
+      [length]="totalRegisters"
+      [pageSize]="10"
+      [pageIndex]="0"
+      [pageSizeOptions]="[10, 100, 1000]"
+      (page)="changePaginator($event)"
+    >
+    </mat-paginator>
+  </ng-template>
+</div>

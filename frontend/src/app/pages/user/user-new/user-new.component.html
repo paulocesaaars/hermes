@@ -1,0 +1,82 @@
+<app-title></app-title>
+<div class="deviot-container">
+  <mat-toolbar>
+    <span>ADICIONAR USUÁRIO</span>
+  </mat-toolbar>
+  <form novalidate [formGroup]="form" (ngSubmit)="save()">
+    <mat-form-field appearance="outline" class="deviot-form-username">
+      <mat-label>Nome de usuário</mat-label>
+      <input matInput formControlName="userName" />
+      <mat-error *ngIf="form.controls['userName'].hasError('required')">
+        O campo nome de usuário é requerido.
+      </mat-error>
+      <mat-error *ngIf="form.controls['userName'].hasError('minlength')">
+        O campo nome de usuário precisa ter no mínimo 3 caracteres.
+      </mat-error>
+      <mat-error *ngIf="form.controls['userName'].hasError('maxlength')">
+        O campo nome de usuário precisa ter no máximo 30 caracteres.
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="deviot-form-fullname">
+      <mat-label>Nome completo</mat-label>
+      <input matInput formControlName="fullName" />
+      <mat-error *ngIf="form.controls['fullName'].hasError('required')">
+        O campo nome completo é requerido.
+      </mat-error>
+      <mat-error *ngIf="form.controls['fullName'].hasError('minlength')">
+        O campo nome completo precisa ter no mínimo 3 caracteres.
+      </mat-error>
+      <mat-error *ngIf="form.controls['userName'].hasError('maxlength')">
+        O campo nome completo precisa ter no máximo 100 caracteres.
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="deviot-form-password">
+      <mat-label>Senha</mat-label>
+      <input type="password" matInput formControlName="password" />
+      <mat-error *ngIf="form.controls['password'].hasError('required')">
+        O campo senha é requerido.
+      </mat-error>
+      <mat-error *ngIf="form.controls['password'].hasError('minlength')">
+        O campo senha precisa ter no mínimo 6 caracteres.
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field
+      appearance="outline"
+      class="deviot-form-confirm-password"
+      style="margin-left: 20px"
+    >
+      <mat-label>Confirmar senha</mat-label>
+      <input type="password" matInput formControlName="confirmPassword" />
+      <mat-error *ngIf="form.controls['confirmPassword'].hasError('required')">
+        O campo confirmação de senha é requerido.
+      </mat-error>
+      <mat-error *ngIf="form.controls['confirmPassword'].hasError('minlength')">
+        O campo confirmação de senha precisa ter no mínimo 6 caracteres.
+      </mat-error>
+      <mat-error *ngIf="form.controls['confirmPassword'].hasError('equalTo')">
+        Os campos de senha não são iguais.
+      </mat-error>
+    </mat-form-field>
+    <div class="deviot-bt-enabled">
+      <mat-slide-toggle
+        color="primary"
+        [checked]="enabled"
+        (change)="enabled = !enabled"
+      >
+        {{ enabled ? "Habilitado" : "Desabilitado" }}
+      </mat-slide-toggle>
+    </div>
+
+    <mat-toolbar>
+      <span class="deviot-spacer"></span>
+      <button mat-flat-button color="basic" [routerLink]="['/user']">
+        CANCELAR
+      </button>
+      &nbsp; &nbsp;
+      <button mat-flat-button color="primary" type="submit">SALVAR</button>
+    </mat-toolbar>
+  </form>
+</div>
