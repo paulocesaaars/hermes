@@ -4,8 +4,6 @@ using Deviot.Hermes.Application.Bases;
 using Deviot.Hermes.Application.Interfaces;
 using Deviot.Hermes.Application.ViewModels;
 using Deviot.Hermes.Domain.Entities;
-using Deviot.Hermes.Domain.Enumerators;
-using Deviot.Hermes.Infra.ModbusTcp.Configurations;
 using Deviot.Hermes.Infra.SQLite.Interfaces;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +11,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Deviot.Hermes.Application.Services
@@ -21,8 +18,9 @@ namespace Deviot.Hermes.Application.Services
     public class DeviceService : ServiceBase, IDeviceService
     {
         private readonly IAuthService _authService;
+        private readonly MainBackgroundService _mainBackgroundService;
         private readonly IValidator<DeviceViewModel> _deviceValidator;
-        IValidator<ModbusTcpConfiguration> _modbusTcpConfigurationValidator;
+        private readonly IDeviceValidationService _deviceValidationService;
 
         private const string DEVICE_CREATED = "O dispositivo foi criado com sucesso";
         private const string DEVICE_UPDATED = "O dispositivo foi atualizado com sucesso";
@@ -36,13 +34,15 @@ namespace Deviot.Hermes.Application.Services
                           IMapper mapper,
                           IRepositorySQLite repository,
                           IAuthService authService,
+                          MainBackgroundService mainBackgroundService,
                           IValidator<DeviceViewModel> deviceValidator,
-                          IValidator<ModbusTcpConfiguration> modbusTcpConfigurationValidator
+                          IDeviceValidationService deviceValidationService
                          ) : base(notifier, logger, mapper, repository)
         {
             _authService = authService;
+            _mainBackgroundService = mainBackgroundService;
             _deviceValidator = deviceValidator;
-            _modbusTcpConfigurationValidator = modbusTcpConfigurationValidator;
+            _deviceValidationService = deviceValidationService;
         }
 
         private bool CheckAuthorization()
@@ -74,16 +74,13 @@ namespace Deviot.Hermes.Application.Services
 
         private bool ValidateConfiguration(Device device)
         {
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true,
-            };
+            var result = _deviceValidationService.Validate(device);
 
-            if (DeviceTypeEnumeration.ModbusTcp.Equals(device.Type))
-            {
-                var configuration = JsonSerializer.Deserialize<ModbusTcpConfiguration>(device.Configuration, options);
-                return Validate(_modbusTcpConfigurationValidator, configuration);
-            }
+            if (result.IsValid)
+                return true;
+
+            foreach (var message in result.Errors)
+                NotifyBadRequest(message.ErrorMessage);
 
             return false;
         }
@@ -174,6 +171,7 @@ namespace Deviot.Hermes.Application.Services
                         }
                         else
                         {
+                            await _mainBackgroundService.AddDriveAsync(device);
                             await _repository.AddAsync<Device>(device);
                             NotifyCreated(DEVICE_CREATED);
                         }
@@ -211,6 +209,7 @@ namespace Deviot.Hermes.Application.Services
                                 currentDevice.SetType(device.Type);
                                 currentDevice.SetConfiguration(device.Configuration);
 
+                                await _mainBackgroundService.UpdateDriveAsync(device);
                                 await _repository.EditAsync<Device>(currentDevice);
                                 NotifyOk(DEVICE_UPDATED);
                             }
@@ -230,19 +229,27 @@ namespace Deviot.Hermes.Application.Services
 
         public async Task DeleteAsync(Guid id)
         {
-            if (CheckAuthorization())
+            try
             {
-                var device = await _repository.Get<Device>()
-                                              .FirstOrDefaultAsync(x => x.Id == id);
-
-                if (device is null)
+                if (CheckAuthorization())
                 {
-                    NotifyNotFound(DEVICE_NOT_FOUND);
-                    return;
-                }
+                    var device = await _repository.Get<Device>()
+                                                  .FirstOrDefaultAsync(x => x.Id == id);
 
-                await _repository.DeleteAsync<Device>(device);
-                NotifyOk(DEVICE_DELETED);
+                    if (device is null)
+                    {
+                        NotifyNotFound(DEVICE_NOT_FOUND);
+                        return;
+                    }
+
+                    await _mainBackgroundService.DeleteDriveAsync(id);
+                    await _repository.DeleteAsync<Device>(device);
+                    NotifyOk(DEVICE_DELETED);
+                }
+            }
+            catch (Exception exception)
+            {
+                NotifyInternalServerError(exception);
             }
         }
     }

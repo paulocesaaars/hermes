@@ -40,19 +40,11 @@ namespace Deviot.Hermes.Api
             services.AddSwaggerConfiguration();
         }
 
-        public static void Configure(IApplicationBuilder app, IWebHostEnvironment environment, IMigrationService migrationService)
+        public static void Configure(IApplicationBuilder app, IWebHostEnvironment environment)
         {
             app.UseSwaggerConfiguration();
 
             app.UseApiConfiguration(environment);
-
-            if (environment.EnvironmentName == "Development")
-                migrationService.Deleted();
-
-            migrationService.Execute();
-
-            if (environment.EnvironmentName == "Testing")
-                migrationService.Populate();
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace Deviot.Hermes.Domain.Interfaces
 {
-    public interface IModbusRtu : IDrive
+    public interface IModbusTcpDrive : IDrive
     {
     }
 }
