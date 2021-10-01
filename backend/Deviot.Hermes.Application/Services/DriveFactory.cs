@@ -24,12 +24,12 @@ namespace Deviot.Hermes.Application.Services
             {
                 if(device.Type.Equals(DeviceTypeEnumeration.ModbusTcp))
                 {
-                    _modbusTcpDrive.AddConfiguration(device.Configuration);
+                    _modbusTcpDrive.SetDevice(device);
                     return _modbusTcpDrive;
                 }
                 else if (device.Type.Equals(DeviceTypeEnumeration.ModbusRtu))
                 {
-                    _modbusRtuDrive.AddConfiguration(device.Configuration);
+                    _modbusRtuDrive.SetDevice(device);
                     return _modbusRtuDrive;
                 }
 

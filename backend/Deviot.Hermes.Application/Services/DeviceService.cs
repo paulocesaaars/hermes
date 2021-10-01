@@ -171,7 +171,7 @@ namespace Deviot.Hermes.Application.Services
                         }
                         else
                         {
-                            await _mainBackgroundService.AddDriveAsync(device);
+                            _mainBackgroundService.AddDrive(device);
                             await _repository.AddAsync<Device>(device);
                             NotifyCreated(DEVICE_CREATED);
                         }
@@ -209,7 +209,7 @@ namespace Deviot.Hermes.Application.Services
                                 currentDevice.SetType(device.Type);
                                 currentDevice.SetConfiguration(device.Configuration);
 
-                                await _mainBackgroundService.UpdateDriveAsync(device);
+                                _mainBackgroundService.UpdateDrive(device);
                                 await _repository.EditAsync<Device>(currentDevice);
                                 NotifyOk(DEVICE_UPDATED);
                             }
@@ -242,7 +242,7 @@ namespace Deviot.Hermes.Application.Services
                         return;
                     }
 
-                    await _mainBackgroundService.DeleteDriveAsync(id);
+                    _mainBackgroundService.DeleteDrive(id);
                     await _repository.DeleteAsync<Device>(device);
                     NotifyOk(DEVICE_DELETED);
                 }

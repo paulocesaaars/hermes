@@ -11,9 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Deviot.Hermes.Application",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Deviot.Hermes.Api", "Deviot.Hermes.Api\Deviot.Hermes.Api.csproj", "{88EC0E10-5C1C-4399-9828-2A7E626A24EC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Deviot.Hermes.Infra.ModbusTcp", "Deviot.Hermes.Infra.ModbusTcp\Deviot.Hermes.Infra.ModbusTcp.csproj", "{2CB733A5-3EBC-4B98-834D-CF77B89A3977}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Deviot.Hermes.Infra.ModbusTcp", "Deviot.Hermes.Infra.ModbusTcp\Deviot.Hermes.Infra.ModbusTcp.csproj", "{176638EF-80A8-419F-BFB8-C82ECC44DF88}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Deviot.Hermes.Infra.ModbusRtu", "Deviot.Hermes.Infra.ModbusRtu\Deviot.Hermes.Infra.ModbusRtu.csproj", "{C3686D2E-7761-4DDC-BBE4-C85828F08C1D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Deviot.Hermes.Infra.ModbusRtu", "Deviot.Hermes.Infra.ModbusRtu\Deviot.Hermes.Infra.ModbusRtu.csproj", "{0BF2B3C2-6C99-4D4C-B099-DCB3AD0A5E01}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,14 +37,14 @@ Global
 		{88EC0E10-5C1C-4399-9828-2A7E626A24EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{88EC0E10-5C1C-4399-9828-2A7E626A24EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{88EC0E10-5C1C-4399-9828-2A7E626A24EC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2CB733A5-3EBC-4B98-834D-CF77B89A3977}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2CB733A5-3EBC-4B98-834D-CF77B89A3977}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2CB733A5-3EBC-4B98-834D-CF77B89A3977}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2CB733A5-3EBC-4B98-834D-CF77B89A3977}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C3686D2E-7761-4DDC-BBE4-C85828F08C1D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C3686D2E-7761-4DDC-BBE4-C85828F08C1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C3686D2E-7761-4DDC-BBE4-C85828F08C1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C3686D2E-7761-4DDC-BBE4-C85828F08C1D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{176638EF-80A8-419F-BFB8-C82ECC44DF88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{176638EF-80A8-419F-BFB8-C82ECC44DF88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{176638EF-80A8-419F-BFB8-C82ECC44DF88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{176638EF-80A8-419F-BFB8-C82ECC44DF88}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0BF2B3C2-6C99-4D4C-B099-DCB3AD0A5E01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BF2B3C2-6C99-4D4C-B099-DCB3AD0A5E01}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0BF2B3C2-6C99-4D4C-B099-DCB3AD0A5E01}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0BF2B3C2-6C99-4D4C-B099-DCB3AD0A5E01}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="EasyModbusTCP" Version="5.6.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Deviot.Hermes.Domain\Deviot.Hermes.Domain.csproj" />
   </ItemGroup>
 

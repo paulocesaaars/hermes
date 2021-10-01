@@ -1,22 +1,29 @@
 ﻿using Deviot.Hermes.Domain.Entities;
+using Deviot.Hermes.Domain.Enumerators;
 using System;
 using System.Threading.Tasks;
 
 namespace Deviot.Hermes.Domain.Interfaces
 {
-    public interface IDrive : IDisposable
+    public interface IDrive
     {
+        public Guid Id { get; }
+
+        public string Name { get; }
+
+        public DeviceTypeEnumeration Type { get; }
+
         public bool Status { get; }
 
         public bool StatusConnection { get; }
 
-        public Device Device { get; }
+        public void SetDevice(Device device);
 
-        public void AddConfiguration(string configuration);
+        public void UpdateDrive(Device device);
 
-        public Task StartAsync();
+        public void Start();
 
-        public Task StopAsync();
+        public void Stop();
 
         public Task<object> GetDataAsync(string json);
 

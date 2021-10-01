@@ -73,22 +73,16 @@ namespace Deviot.Hermes.Application.Services
 
                 if (_drives.Any())
                 {
-                    var startTasks = new List<Task>();
-                    _drives.ForEach(x => startTasks.Add(x.StartAsync()));
-
-                    var startTask = Task.WhenAll(startTasks);
-                    startTask.Wait();
+                    foreach (var driver in _drives)
+                        driver.Start();
                 }
 
                 await Task.Delay(Timeout.Infinite, stoppingToken);
 
                 if (_drives.Any())
                 {
-                    var stopTasks = new List<Task>();
-                    _drives.ForEach(x => stopTasks.Add(x.StopAsync()));
-
-                    var stopTask = Task.WhenAll(stopTasks);
-                    stopTask.Wait();
+                    foreach (var driver in _drives)
+                        driver.Stop();
                 }
             }
             catch (Exception exception)
@@ -97,9 +91,9 @@ namespace Deviot.Hermes.Application.Services
             }
         }
 
-        public async Task AddDriveAsync(Device device)
+        public void AddDrive(Device device)
         {
-            if(!_drives.Any(x => x.Device.Id == device.Id))
+            if(!_drives.Any(x => x.Id == device.Id))
             {
                 try
                 {
@@ -108,7 +102,7 @@ namespace Deviot.Hermes.Application.Services
                         var driveFactory = scope.ServiceProvider.GetRequiredService<IDriveFactory>();
                         var drive = driveFactory.GenerateDrive(device);
                         _drives.Add(drive);
-                        await drive.StartAsync();
+                        drive.Start();
                     }
                 }
                 catch (Exception exception)
@@ -118,32 +112,28 @@ namespace Deviot.Hermes.Application.Services
             }
         }
 
-        public async Task UpdateDriveAsync(Device device)
+        public void UpdateDrive(Device device)
         {
             try
             {
-                var currentDrive = _drives.FirstOrDefault(x => x.Device.Id == device.Id);
+                var currentDrive = _drives.FirstOrDefault(x => x.Id == device.Id);
                 if (currentDrive is not null)
-                {
-                    await currentDrive.StopAsync();
-                    _drives.Remove(currentDrive);
-                    await AddDriveAsync(device);
-                }
+                    currentDrive.UpdateDrive(device);
             }
-            catch (Exception)
+            catch (Exception exception)
             {
-                return;
+                _logger.LogError(exception.Message);
             }
         }
 
-        public async Task DeleteDriveAsync(Guid id)
+        public void DeleteDrive(Guid id)
         {
             try
             {
-                var currentDrive = _drives.FirstOrDefault(x => x.Device.Id == id);
+                var currentDrive = _drives.FirstOrDefault(x => x.Id == id);
                 if (currentDrive is not null)
                 {
-                    await currentDrive.StopAsync();
+                    currentDrive.Stop();
                     _drives.Remove(currentDrive);
                 }
             }
