@@ -4,7 +4,7 @@ using Deviot.Hermes.Domain.Interfaces;
 using System;
 using System.Threading.Tasks;
 
-namespace Deviot.Hermes.Infra.ModbusRtu.Services
+namespace Deviot.Hermes.Infra.Modbus.Services
 {
     public class ModbusRtuDrive : IModbusRtuDrive
     {
@@ -14,13 +14,13 @@ namespace Deviot.Hermes.Infra.ModbusRtu.Services
 
         public DeviceTypeEnumeration Type => throw new NotImplementedException();
 
-        public bool Status => throw new NotImplementedException();
+        public bool Enable => throw new NotImplementedException();
 
         public bool StatusConnection => throw new NotImplementedException();
 
         
 
-        public Task<object> GetDataAsync(string json)
+        public Task<object> GetDataAsync()
         {
             throw new NotImplementedException();
         }
@@ -45,13 +45,9 @@ namespace Deviot.Hermes.Infra.ModbusRtu.Services
             throw new NotImplementedException();
         }
 
-        public void UpdateDrive(Device device)
+        public Task UpdateDriveAsync(Device device)
         {
             throw new NotImplementedException();
-        }
-
-        public void Dispose()
-        {
         }
     }
 }

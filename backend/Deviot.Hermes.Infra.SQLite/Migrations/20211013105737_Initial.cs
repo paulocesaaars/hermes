@@ -12,8 +12,9 @@ namespace Deviot.Hermes.Infra.SQLite.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "varchar(150)", nullable: false),
+                    Name = table.Column<string>(type: "TEXT", nullable: false),
                     TypeId = table.Column<int>(type: "INTEGER", nullable: false),
+                    Enable = table.Column<bool>(type: "INTEGER", nullable: false),
                     Configuration = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
@@ -26,11 +27,11 @@ namespace Deviot.Hermes.Infra.SQLite.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    FullName = table.Column<string>(type: "varchar(150)", nullable: false),
-                    UserName = table.Column<string>(type: "varchar(20)", nullable: false),
+                    FullName = table.Column<string>(type: "TEXT", nullable: false),
+                    UserName = table.Column<string>(type: "TEXT", nullable: false),
                     Enabled = table.Column<bool>(type: "INTEGER", nullable: false),
                     Administrator = table.Column<bool>(type: "INTEGER", nullable: false),
-                    Password = table.Column<string>(type: "varchar(300)", nullable: false)
+                    Password = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {

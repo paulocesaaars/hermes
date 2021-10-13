@@ -14,8 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Deviot.Hermes.Domain\Deviot.Hermes.Domain.csproj" />
-    <ProjectReference Include="..\Deviot.Hermes.Infra.ModbusRtu\Deviot.Hermes.Infra.ModbusRtu.csproj" />
-    <ProjectReference Include="..\Deviot.Hermes.Infra.ModbusTcp\Deviot.Hermes.Infra.ModbusTcp.csproj" />
+    <ProjectReference Include="..\Deviot.Hermes.Infra.Modbus\Deviot.Hermes.Infra.Modbus.csproj" />
     <ProjectReference Include="..\Deviot.Hermes.Infra.SQLite\Deviot.Hermes.Infra.SQLite.csproj" />
   </ItemGroup>
 

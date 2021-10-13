@@ -10,6 +10,7 @@
   "$schema": "http://json.schemastore.org/launchsettings.json",
   "profiles": {
     "Deviot.Hermes.Api - Development": {
+      "launchBrowser": false,
       "commandName": "Project",
       "launchUrl": "swagger",
       "environmentVariables": {
@@ -19,6 +20,7 @@
       "applicationUrl": "https://localhost:5001;http://localhost:5000"
     },
     "Deviot.Hermes.Api - Production": {
+      "launchBrowser": false,
       "commandName": "Project",
       "launchUrl": "swagger",
       "environmentVariables": {
@@ -28,6 +30,7 @@
       "applicationUrl": "https://localhost:5001;http://localhost:5000"
     },
     "Deviot.Hermes.Api - Testing": {
+      "launchBrowser": false,
       "commandName": "Project",
       "launchUrl": "swagger",
       "environmentVariables": {

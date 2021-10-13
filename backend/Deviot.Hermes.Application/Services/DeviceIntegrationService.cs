@@ -2,44 +2,27 @@
 using Deviot.Hermes.Domain.Entities;
 using Deviot.Hermes.Domain.Interfaces;
 using Deviot.Hermes.Infra.SQLite.Interfaces;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Deviot.Hermes.Application.Services
 {
-    public class MainBackgroundService : BackgroundService
+    public class DeviceIntegrationService : IDeviceIntegrationService
     {
         private List<IDrive> _drives = new List<IDrive>();
+
         private readonly IServiceProvider _serviceProvider;
-        private readonly ILogger<MainBackgroundService> _logger;
-        private readonly IWebHostEnvironment _environment;
-        private readonly IMigrationService _migrationService;
+        private readonly ILogger<DeviceIntegrationService> _logger;
 
-        public MainBackgroundService(IServiceProvider serviceProvider, ILogger<MainBackgroundService> logger, IWebHostEnvironment environment, IMigrationService migrationService)
+        public DeviceIntegrationService(ILogger<DeviceIntegrationService> logger, IServiceProvider serviceProvider)
         {
-            _serviceProvider = serviceProvider;
             _logger = logger;
-            _environment = environment;
-            _migrationService = migrationService;
-        }
-
-        private void ExecuteMigration()
-        {
-            if (_environment.EnvironmentName == "Development")
-                _migrationService.Deleted();
-
-            _migrationService.Execute();
-
-            if (_environment.EnvironmentName == "Testing")
-                _migrationService.Populate();
+            _serviceProvider = serviceProvider;
         }
 
         private async Task InitializeDrivesAsync()
@@ -50,7 +33,7 @@ namespace Deviot.Hermes.Application.Services
                 {
                     var repository = scope.ServiceProvider.GetRequiredService<IRepositorySQLite>();
                     var driveFactory = scope.ServiceProvider.GetRequiredService<IDriveFactory>();
-                    
+
                     var devices = await repository.Get<Device>().ToListAsync();
 
                     foreach (var device in devices)
@@ -63,37 +46,24 @@ namespace Deviot.Hermes.Application.Services
             }
         }
 
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        public async Task StartAsync()
         {
-            try
-            {
-                ExecuteMigration();
-
-                await InitializeDrivesAsync();
-
-                if (_drives.Any())
-                {
-                    foreach (var driver in _drives)
-                        driver.Start();
-                }
-
-                await Task.Delay(Timeout.Infinite, stoppingToken);
-
-                if (_drives.Any())
-                {
-                    foreach (var driver in _drives)
-                        driver.Stop();
-                }
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception.Message);
-            }
+            await InitializeDrivesAsync();
+            if (_drives.Any())
+                foreach (var driver in _drives)
+                    driver.Start();
         }
 
-        public void AddDrive(Device device)
+        public async Task StopAsync()
         {
-            if(!_drives.Any(x => x.Id == device.Id))
+            if (_drives.Any())
+                foreach (var driver in _drives)
+                    driver.Stop();
+        }
+
+        public async Task AddDriveAsync(Device device)
+        {
+            if (!_drives.Any(x => x.Id == device.Id))
             {
                 try
                 {
@@ -112,13 +82,13 @@ namespace Deviot.Hermes.Application.Services
             }
         }
 
-        public void UpdateDrive(Device device)
+        public async Task UpdateDriveAsync(Device device)
         {
             try
             {
                 var currentDrive = _drives.FirstOrDefault(x => x.Id == device.Id);
                 if (currentDrive is not null)
-                    currentDrive.UpdateDrive(device);
+                    await currentDrive.UpdateDriveAsync(device);
             }
             catch (Exception exception)
             {
@@ -126,7 +96,7 @@ namespace Deviot.Hermes.Application.Services
             }
         }
 
-        public void DeleteDrive(Guid id)
+        public async Task DeleteDriveAsync(Guid id)
         {
             try
             {
@@ -141,6 +111,22 @@ namespace Deviot.Hermes.Application.Services
             {
                 _logger.LogError(exception.Message);
             }
+        }
+
+        public async Task<object> GetDataAsync(Guid id)
+        {
+            try
+            {
+                var currentDrive = _drives.FirstOrDefault(x => x.Id == id);
+                if (currentDrive is not null)
+                    return await currentDrive.GetDataAsync();
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception.Message);
+            }
+
+            return null;
         }
     }
 }

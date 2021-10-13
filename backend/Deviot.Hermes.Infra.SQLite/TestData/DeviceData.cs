@@ -13,14 +13,16 @@ namespace Deviot.Hermes.Infra.SQLite.TestData
             configuration.AppendLine("{");
             configuration.AppendLine("  \"ip\": \"127.0.0.1\",");
             configuration.AppendLine("  \"port\": 502,");
-            configuration.AppendLine("  \"coilStatus\": 0,");
-            configuration.AppendLine("  \"inputStatus\": 0,");
-            configuration.AppendLine("  \"holdingRegister\": 10,");
-            configuration.AppendLine("  \"inputRegister\": 0");
+            configuration.AppendLine("  \"scan\": 1000,");
+            configuration.AppendLine("  \"numberOfCoils\": 0,");
+            configuration.AppendLine("  \"numberOfDiscrete\": 0,");
+            configuration.AppendLine("  \"numberOfHoldingRegisters\": 10,");
+            configuration.AppendLine("  \"numberOfInputRegisters\": 0,");
+            configuration.AppendLine("  \"maxNumberOfReadAttempts\": 3");
             configuration.AppendLine("}");
 
             var devices = new List<Device>();
-            devices.Add(new Device(new Guid("7011423f65144a2fb1d798dec19cf466"), "Device1", 2, configuration.ToString()));
+            devices.Add(new Device(new Guid("7011423f65144a2fb1d798dec19cf466"), "Device1", 2, true, configuration.ToString()));
 
             return devices;
         }

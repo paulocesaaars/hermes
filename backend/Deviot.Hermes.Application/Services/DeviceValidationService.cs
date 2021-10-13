@@ -1,8 +1,8 @@
 ﻿using Deviot.Hermes.Application.Interfaces;
 using Deviot.Hermes.Domain.Entities;
 using Deviot.Hermes.Domain.Enumerators;
-using Deviot.Hermes.Infra.ModbusRtu.Configurations;
-using Deviot.Hermes.Infra.ModbusTcp.Configurations;
+using Deviot.Hermes.Infra.Modbus.Configurations;
+using Deviot.Hermes.Infra.Modbus.Configurations;
 using FluentValidation;
 using FluentValidation.Results;
 using System.Text.Json;

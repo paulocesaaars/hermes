@@ -13,19 +13,19 @@ namespace Deviot.Hermes.Domain.Interfaces
 
         public DeviceTypeEnumeration Type { get; }
 
-        public bool Status { get; }
+        public bool Enable { get; }
 
         public bool StatusConnection { get; }
 
         public void SetDevice(Device device);
 
-        public void UpdateDrive(Device device);
-
         public void Start();
 
         public void Stop();
 
-        public Task<object> GetDataAsync(string json);
+        public Task UpdateDriveAsync(Device device);
+
+        public Task<object> GetDataAsync();
 
         public Task SetDataAsync(string data);
     }

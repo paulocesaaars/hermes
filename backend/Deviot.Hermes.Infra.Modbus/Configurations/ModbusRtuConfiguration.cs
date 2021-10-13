@@ -1,4 +1,4 @@
-﻿namespace Deviot.Hermes.Infra.ModbusRtu.Configurations
+﻿namespace Deviot.Hermes.Infra.Modbus.Configurations
 {
     public class ModbusRtuConfiguration
     {

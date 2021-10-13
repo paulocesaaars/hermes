@@ -9,6 +9,8 @@ namespace Deviot.Hermes.Domain.Entities
 
         public int TypeId { get; private set; }
 
+        public bool Enable { get; private set; }
+
         public string Configuration { get; private set; }
 
         public DeviceTypeEnumeration Type { get => DeviceTypeEnumeration.FromIdOrDefault<DeviceTypeEnumeration>(TypeId, DeviceTypeEnumeration.Nenhum); }
@@ -18,11 +20,12 @@ namespace Deviot.Hermes.Domain.Entities
 
         }
 
-        public Device(Guid id, string name, int typeId, string configuration)
+        public Device(Guid id, string name, int typeId, bool enable, string configuration)
         {
             Id = id;
             Name = name;
             TypeId = typeId;
+            Enable = enable;
             Configuration = configuration;
         }
 

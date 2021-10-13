@@ -2,7 +2,7 @@
 using Deviot.Hermes.Application.ViewModels;
 using Deviot.Hermes.Domain.Entities;
 using Deviot.Hermes.Domain.Enumerators;
-using Deviot.Hermes.Infra.ModbusTcp.Configurations;
+using Deviot.Hermes.Infra.Modbus.Configurations;
 using System;
 using System.Text.Json;
 

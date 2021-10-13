@@ -14,7 +14,6 @@ namespace Deviot.Hermes.Infra.SQLite.Mapping
             ConfigureBase<Device>(builder, $"Device");
 
             builder.Property(o => o.Name)
-                .HasColumnType("varchar(150)")
                 .IsRequired();
 
             builder.Property(o => o.TypeId)

@@ -14,18 +14,15 @@ namespace Deviot.Hermes.Infra.SQLite.Mapping
             ConfigureBase<User>(builder, $"User");
 
             builder.Property(o => o.FullName)
-                .HasColumnType("varchar(150)")
                 .IsRequired();
 
             builder.Property(o => o.Enabled)
                 .IsRequired();
 
             builder.Property(o => o.UserName)
-                .HasColumnType("varchar(20)")
                 .IsRequired();
 
             builder.Property(o => o.Password)
-                .HasColumnType("varchar(300)")
                 .IsRequired();
 
             builder.HasIndex(t => new { t.UserName, t.Password, t.Enabled });

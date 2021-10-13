@@ -1,4 +1,4 @@
-﻿using Deviot.Hermes.Infra.ModbusRtu.Configurations;
+﻿using Deviot.Hermes.Infra.Modbus.Configurations;
 using FluentValidation;
 
 namespace Deviot.Hermes.Application.Validators

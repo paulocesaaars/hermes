@@ -20,5 +20,7 @@ namespace Deviot.Hermes.Application.Interfaces
         Task UpdateAsync(DeviceViewModel deviceViewModel);
 
         Task DeleteAsync(Guid id);
+
+        Task<object> GetDataAsync(Guid id);
     }
 }

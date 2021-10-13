@@ -1,4 +1,4 @@
-﻿using Deviot.Hermes.Infra.ModbusTcp.Configurations;
+﻿using Deviot.Hermes.Infra.Modbus.Configurations;
 using FluentValidation;
 using System.Net;
 
@@ -16,13 +16,15 @@ namespace Deviot.Hermes.Application.Validators
 
             RuleFor(x => x.Port).InclusiveBetween(1, 1000).WithMessage("A porta de conexão deve ser de 1 a 10000");
 
-            RuleFor(x => x.CoilStatus).InclusiveBetween(0, 10000).WithMessage("O número de posições de entradas digitais deve ser de 0 a 10000");
+            RuleFor(x => x.Scan).InclusiveBetween(1000, 60000).WithMessage("O tempo de scan deve ser de 1000 a 60000 milisegundos");
 
-            RuleFor(x => x.InputStatus).InclusiveBetween(0, 10000).WithMessage("O número de posições de saídas digitais deve ser de 0 a 10000");
+            RuleFor(x => x.NumberOfCoils).InclusiveBetween(0, 10000).WithMessage("O número de posições de entradas digitais deve ser de 0 a 10000");
 
-            RuleFor(x => x.HoldingRegister).InclusiveBetween(0, 10000).WithMessage("O número de posições de entradas analógicas deve ser de 0 a 10000");
+            RuleFor(x => x.NumberOfDiscrete).InclusiveBetween(0, 10000).WithMessage("O número de posições de saídas digitais deve ser de 0 a 10000");
 
-            RuleFor(x => x.InputRegister).InclusiveBetween(0, 10000).WithMessage("O número de posições de saídas analógicas deve ser de 0 a 10000");
+            RuleFor(x => x.NumberOfHoldingRegisters).InclusiveBetween(0, 10000).WithMessage("O número de posições de entradas analógicas deve ser de 0 a 10000");
+
+            RuleFor(x => x.NumberOfInputRegisters).InclusiveBetween(0, 10000).WithMessage("O número de posições de saídas analógicas deve ser de 0 a 10000");
         }
     }
 }

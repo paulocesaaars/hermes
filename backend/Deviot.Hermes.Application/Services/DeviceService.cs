@@ -18,7 +18,7 @@ namespace Deviot.Hermes.Application.Services
     public class DeviceService : ServiceBase, IDeviceService
     {
         private readonly IAuthService _authService;
-        private readonly MainBackgroundService _mainBackgroundService;
+        private readonly IDeviceIntegrationService _deviceIntegrationService;
         private readonly IValidator<DeviceViewModel> _deviceValidator;
         private readonly IDeviceValidationService _deviceValidationService;
 
@@ -34,13 +34,13 @@ namespace Deviot.Hermes.Application.Services
                           IMapper mapper,
                           IRepositorySQLite repository,
                           IAuthService authService,
-                          MainBackgroundService mainBackgroundService,
+                          IDeviceIntegrationService deviceIntegrationService,
                           IValidator<DeviceViewModel> deviceValidator,
                           IDeviceValidationService deviceValidationService
                          ) : base(notifier, logger, mapper, repository)
         {
             _authService = authService;
-            _mainBackgroundService = mainBackgroundService;
+            _deviceIntegrationService = deviceIntegrationService;
             _deviceValidator = deviceValidator;
             _deviceValidationService = deviceValidationService;
         }
@@ -171,7 +171,7 @@ namespace Deviot.Hermes.Application.Services
                         }
                         else
                         {
-                            _mainBackgroundService.AddDrive(device);
+                            await _deviceIntegrationService.AddDriveAsync(device);
                             await _repository.AddAsync<Device>(device);
                             NotifyCreated(DEVICE_CREATED);
                         }
@@ -209,7 +209,7 @@ namespace Deviot.Hermes.Application.Services
                                 currentDevice.SetType(device.Type);
                                 currentDevice.SetConfiguration(device.Configuration);
 
-                                _mainBackgroundService.UpdateDrive(device);
+                                await _deviceIntegrationService.UpdateDriveAsync(device);
                                 await _repository.EditAsync<Device>(currentDevice);
                                 NotifyOk(DEVICE_UPDATED);
                             }
@@ -242,7 +242,7 @@ namespace Deviot.Hermes.Application.Services
                         return;
                     }
 
-                    _mainBackgroundService.DeleteDrive(id);
+                    await _deviceIntegrationService.DeleteDriveAsync(id);
                     await _repository.DeleteAsync<Device>(device);
                     NotifyOk(DEVICE_DELETED);
                 }
@@ -251,6 +251,20 @@ namespace Deviot.Hermes.Application.Services
             {
                 NotifyInternalServerError(exception);
             }
+        }
+
+        public async Task<object> GetDataAsync(Guid id)
+        {
+            try
+            {
+                return await _deviceIntegrationService.GetDataAsync(id);
+            }
+            catch (Exception exception)
+            {
+                NotifyInternalServerError(exception);
+            }
+
+            return null;
         }
     }
 }
