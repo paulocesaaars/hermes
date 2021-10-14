@@ -1,4 +1,5 @@
-﻿using Deviot.Hermes.Domain.Entities;
+﻿using Deviot.Common;
+using Deviot.Hermes.Domain.Entities;
 using Deviot.Hermes.Domain.Enumerators;
 using Deviot.Hermes.Domain.Interfaces;
 using Deviot.Hermes.Infra.Modbus.Configurations;
@@ -221,12 +222,7 @@ namespace Deviot.Hermes.Infra.Modbus.Services
         {
             try
             {
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                };
-
-                _modbusTcpConfiguration = JsonSerializer.Deserialize<ModbusTcpConfiguration>(configuration, options);
+                _modbusTcpConfiguration = Utils.Deserializer<ModbusTcpConfiguration>(configuration);
                 _modbusDeviceDataBase = new ModbusDeviceDataBase(_modbusTcpConfiguration.NumberOfCoils, 
                                              _modbusTcpConfiguration.NumberOfDiscrete, 
                                              _modbusTcpConfiguration.NumberOfHoldingRegisters, 

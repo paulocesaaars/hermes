@@ -19,6 +19,15 @@ namespace Deviot.Hermes.Application.Services
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<DeviceIntegrationService> _logger;
 
+        private const string NAME = "{name}";
+        private const string ERROR_INITIALIZE = "";
+        private const string ERROR_START = "Houve ao iniciar o driver";
+        private const string ERROR_STOP = "Houve ao parar o driver";
+        private const string ERROR_GET_DATA = "Houve um problema ao ler os dados do dispositivo";
+        private const string ERROR_SET_DATA = "Houve um problema ao escrever os dados no dispositivo";
+        private const string ERROR_UPDATE = "Houve um problema ao atualizar o dispositivo {name}.";
+        private const string ERROR_DELETE = "Houve um problema ao deletar o dispositivo {name}.";
+
         public DeviceIntegrationService(ILogger<DeviceIntegrationService> logger, IServiceProvider serviceProvider)
         {
             _logger = logger;
@@ -42,6 +51,7 @@ namespace Deviot.Hermes.Application.Services
             }
             catch (Exception exception)
             {
+                _logger.LogError(ERROR_INITIALIZE);
                 _logger.LogError(exception.Message);
             }
         }
@@ -50,15 +60,39 @@ namespace Deviot.Hermes.Application.Services
         {
             await InitializeDrivesAsync();
             if (_drives.Any())
+            {
                 foreach (var driver in _drives)
-                    driver.Start();
+                {
+                    try
+                    {
+                        driver.Start();
+                    }
+                    catch (Exception exception)
+                    {
+                        _logger.LogError(ERROR_START);
+                        _logger.LogError(exception.Message);
+                    }
+                }
+            }
         }
 
         public async Task StopAsync()
         {
             if (_drives.Any())
+            {
                 foreach (var driver in _drives)
-                    driver.Stop();
+                {
+                    try
+                    {
+                        driver.Stop();
+                    }
+                    catch (Exception exception)
+                    {
+                        _logger.LogError(ERROR_STOP);
+                        _logger.LogError(exception.Message);
+                    }
+                }
+            }
         }
 
         public async Task AddDriveAsync(Device device)
@@ -77,6 +111,7 @@ namespace Deviot.Hermes.Application.Services
                 }
                 catch (Exception exception)
                 {
+                    _logger.LogError(ERROR_STOP);
                     _logger.LogError(exception.Message);
                 }
             }
@@ -92,15 +127,17 @@ namespace Deviot.Hermes.Application.Services
             }
             catch (Exception exception)
             {
+                _logger.LogError(ERROR_UPDATE.Replace(NAME, device.Name));
                 _logger.LogError(exception.Message);
             }
         }
 
         public async Task DeleteDriveAsync(Guid id)
         {
+            var currentDrive = default(IDrive);
             try
             {
-                var currentDrive = _drives.FirstOrDefault(x => x.Id == id);
+                currentDrive = _drives.FirstOrDefault(x => x.Id == id);
                 if (currentDrive is not null)
                 {
                     currentDrive.Stop();
@@ -109,6 +146,8 @@ namespace Deviot.Hermes.Application.Services
             }
             catch (Exception exception)
             {
+                var name = currentDrive is null ? id.ToString() : currentDrive.Name;
+                _logger.LogError(ERROR_DELETE.Replace(NAME, name));
                 _logger.LogError(exception.Message);
             }
         }
@@ -123,6 +162,7 @@ namespace Deviot.Hermes.Application.Services
             }
             catch (Exception exception)
             {
+                _logger.LogError(ERROR_GET_DATA);
                 _logger.LogError(exception.Message);
             }
 

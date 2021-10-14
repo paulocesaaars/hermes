@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
+using Deviot.Common;
 using Deviot.Hermes.Application.ViewModels;
 using Deviot.Hermes.Domain.Entities;
 using Deviot.Hermes.Domain.Enumerators;
 using Deviot.Hermes.Infra.Modbus.Configurations;
 using System;
-using System.Text.Json;
 
 namespace Deviot.Hermes.Application.Mappings
 {
@@ -14,13 +14,8 @@ namespace Deviot.Hermes.Application.Mappings
         {
             try
             {
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true,
-                };
-
                 if (DeviceTypeEnumeration.ModbusTcp.Equals(device.Type))
-                    return JsonSerializer.Deserialize<ModbusTcpConfiguration>(device.Configuration, options);
+                    return Utils.Deserializer<ModbusTcpConfiguration>(device.Configuration);
 
                 return null;
             }

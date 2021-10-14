@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
+using Deviot.Common;
 using Deviot.Hermes.Application.ViewModels;
 using Deviot.Hermes.Domain.Entities;
-using System.Text.Json;
 
 namespace Deviot.Hermes.Application.Mappings
 {
@@ -9,13 +9,7 @@ namespace Deviot.Hermes.Application.Mappings
     {
         private static string Serialize(object value)
         {
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true,
-                WriteIndented = true
-            };
-
-            return JsonSerializer.Serialize(value, options);
+            return Utils.Serializer(value);
         }
 
         public ViewModelToEntityMapping()

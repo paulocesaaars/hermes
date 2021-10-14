@@ -34,8 +34,7 @@ namespace Deviot.Hermes.Api.Bases
 
         private static string Serialize(CustomActionResult customActionResult)
         {
-            var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-            return JsonSerializer.Serialize(customActionResult, options);
+            return Utils.Serializer(customActionResult);
         }
 
         private static ContentResult GenerateContentResult(HttpStatusCode httpStatusCode, 

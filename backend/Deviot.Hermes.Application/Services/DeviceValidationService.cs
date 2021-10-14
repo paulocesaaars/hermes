@@ -1,11 +1,10 @@
-﻿using Deviot.Hermes.Application.Interfaces;
+﻿using Deviot.Common;
+using Deviot.Hermes.Application.Interfaces;
 using Deviot.Hermes.Domain.Entities;
 using Deviot.Hermes.Domain.Enumerators;
 using Deviot.Hermes.Infra.Modbus.Configurations;
-using Deviot.Hermes.Infra.Modbus.Configurations;
 using FluentValidation;
 using FluentValidation.Results;
-using System.Text.Json;
 
 namespace Deviot.Hermes.Application.Services
 {
@@ -24,19 +23,14 @@ namespace Deviot.Hermes.Application.Services
 
         public ValidationResult Validate(Device device)
         {
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true,
-            };
-
             if (DeviceTypeEnumeration.ModbusTcp.Equals(device.Type))
             {
-                var configuration = JsonSerializer.Deserialize<ModbusTcpConfiguration>(device.Configuration, options);
+                var configuration = Utils.Deserializer<ModbusTcpConfiguration>(device.Configuration);
                 return _modbusTcpValidation.Validate(configuration);
             }
             else if (DeviceTypeEnumeration.ModbusRtu.Equals(device.Type))
             {
-                var configuration = JsonSerializer.Deserialize<ModbusRtuConfiguration>(device.Configuration, options);
+                var configuration = Utils.Deserializer<ModbusRtuConfiguration>(device.Configuration);
                 return _modbusRtuValidation.Validate(configuration);
             }
 
