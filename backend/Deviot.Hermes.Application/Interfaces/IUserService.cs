@@ -9,15 +9,15 @@ namespace Deviot.Hermes.Application.Interfaces
     {
         Task<UserInfoViewModel> GetAsync(Guid id);
 
-        Task<IEnumerable<UserInfoViewModel>> GetAllAsync(string name = "", int take = 1000, int skip = 0);
+        Task<IEnumerable<UserInfoViewModel>> GetAllAsync(string name);
 
         Task<bool> CheckUserNameExistAsync(string userName);
 
         Task<long> TotalRegistersAsync();
 
-        Task InsertAsync(UserViewModel userViewModel);
+        Task<UserInfoViewModel> InsertAsync(UserViewModel userViewModel);
 
-        Task UpdateAsync(UserInfoViewModel userInfoViewModel);
+        Task<UserInfoViewModel> UpdateAsync(UserInfoViewModel userInfoViewModel);
 
         Task ChangePasswordAsync(UserPasswordViewModel userPasswordViewModel);
 

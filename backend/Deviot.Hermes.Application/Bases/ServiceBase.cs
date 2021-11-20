@@ -43,10 +43,10 @@ namespace Deviot.Hermes.Application.Bases
             _notifier.Notify(HttpStatusCode.OK, message);
         }
 
-        public virtual void NotifyCreated(string message)
+        public virtual void NotifyCreated(string id, string message)
         {
             _logger.LogInformation(message);
-            _notifier.Notify(HttpStatusCode.Created, message);
+            _notifier.Notify(id, HttpStatusCode.Created, message);
         }
 
         public virtual void NotifyNoContent(string message)

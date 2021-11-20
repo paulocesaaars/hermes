@@ -25,6 +25,7 @@ namespace Deviot.Hermes.Application.Services
         private const string DEVICE_CREATED = "O dispositivo foi criado com sucesso";
         private const string DEVICE_UPDATED = "O dispositivo foi atualizado com sucesso";
         private const string DEVICE_DELETED = "O dispositivo foi deletado com sucesso";
+        private const string DEVICES_NO_CONTENT = "Nenhum dispositivo foi encontrado";
         private const string DEVICE_NOT_FOUND = "O dispositivo não foi encontrado";
         private const string DEVICE_NAME_ALREADY_EXISTS = "O nome do dispositivo informado já existe";
         private const string DEVICE_AUTHORIZATION = "Somente um administrador pode criar, editar ou deletar um dispositivo";
@@ -104,7 +105,7 @@ namespace Deviot.Hermes.Application.Services
             }
         }
 
-        public async Task<IEnumerable<DeviceViewModel>> GetAllAsync(string name = "", int take = 1000, int skip = 0)
+        public async Task<IEnumerable<DeviceViewModel>> GetAllAsync(string name = "")
         {
             try
             {
@@ -114,9 +115,10 @@ namespace Deviot.Hermes.Application.Services
                     query = query.Where(u => EF.Functions.Like(u.Name.ToLower(), $"%{name.ToLower()}%"));
 
                 var devices = await query.OrderBy(x => x.Name)
-                                         .Take(take)
-                                         .Skip(skip)
                                          .ToListAsync();
+
+                if (!devices.Any())
+                    NotifyNoContent(DEVICES_NO_CONTENT);
 
                 return _mapper.Map<IEnumerable<DeviceViewModel>>(devices);
             }
@@ -155,7 +157,7 @@ namespace Deviot.Hermes.Application.Services
             }
         }
 
-        public async Task InsertAsync(DeviceViewModel deviceViewModel) 
+        public async Task<DeviceViewModel> InsertAsync(DeviceViewModel deviceViewModel) 
         {
             try
             {
@@ -173,7 +175,9 @@ namespace Deviot.Hermes.Application.Services
                         {
                             await _deviceIntegrationService.AddDriveAsync(device);
                             await _repository.AddAsync<Device>(device);
-                            NotifyCreated(DEVICE_CREATED);
+                            NotifyCreated(device.Id.ToString(), DEVICE_CREATED);
+
+                            return _mapper.Map<DeviceViewModel>(device);
                         }
                     }
                 }
@@ -182,9 +186,11 @@ namespace Deviot.Hermes.Application.Services
             {
                 NotifyInternalServerError(exception);
             }
+
+            return null;
         }
 
-        public async Task UpdateAsync(DeviceViewModel deviceViewModel)
+        public async Task<DeviceViewModel> UpdateAsync(DeviceViewModel deviceViewModel)
         {
             try
             {
@@ -206,12 +212,14 @@ namespace Deviot.Hermes.Application.Services
                             else
                             {
                                 currentDevice.SetName(device.Name);
-                                currentDevice.SetType(device.Type);
+                                currentDevice.SetEnable(device.Enable);
                                 currentDevice.SetConfiguration(device.Configuration);
 
-                                await _deviceIntegrationService.UpdateDriveAsync(device);
+                                await _deviceIntegrationService.UpdateDriveAsync(currentDevice);
                                 await _repository.EditAsync<Device>(currentDevice);
                                 NotifyOk(DEVICE_UPDATED);
+
+                                return _mapper.Map<DeviceViewModel>(currentDevice);
                             }
                         }
                         else
@@ -225,6 +233,8 @@ namespace Deviot.Hermes.Application.Services
             {
                 NotifyInternalServerError(exception);
             }
+
+            return null;
         }
 
         public async Task DeleteAsync(Guid id)
@@ -265,6 +275,18 @@ namespace Deviot.Hermes.Application.Services
             }
 
             return null;
+        }
+
+        public async Task WriteDataAsync(object value)
+        {
+            try
+            {
+                await _deviceIntegrationService.WriteDataAsync(value);
+            }
+            catch (Exception exception)
+            {
+                NotifyInternalServerError(exception);
+            }
         }
     }
 }

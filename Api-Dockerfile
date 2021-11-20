@@ -1,15 +1,24 @@
-FROM mcr.microsoft.com/dotnet/aspnet:5.0-buster-slim AS base
-RUN apt-get update
-ENV TZ=America/Sao_Paulo
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
+RUN apt-get update
+ENV TZ=America/Sao_Paulo
+
+RUN apt-get update && apt-get install -y apt-utils
+RUN apt-get install -y libfontconfig1
+RUN apt-get install -y libgdiplus
+RUN apt-get install -y libc6-dev 
+RUN ln -s /usr/lib/libgdiplus.so/usr/lib/gdiplus.dll
+
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /backend
 COPY ["backend/Deviot.Hermes.Api/Deviot.Hermes.Api.csproj", "backend/Deviot.Hermes.Api/"]
-COPY ["backend/Deviot.Hermes.Data/Deviot.Hermes.Data.csproj", "backend/Deviot.Hermes.Data/"]
-COPY ["backend/Deviot.Hermes.Business/Deviot.Hermes.Business.csproj", "backend/Deviot.Hermes.Business/"]
+COPY ["backend/Deviot.Hermes.Application/Deviot.Hermes.Application.csproj", "backend/Deviot.Hermes.Application/"]
+COPY ["backend/Deviot.Hermes.Infra.Modbus/Deviot.Hermes.Infra.Modbus.csproj", "backend/Deviot.Hermes.Infra.Modbus/"]
+COPY ["backend/Deviot.Hermes.Domain/Deviot.Hermes.Domain.csproj", "backend/Deviot.Hermes.Domain/"]
+COPY ["backend/Deviot.Hermes.Infra.SQLite/Deviot.Hermes.Infra.SQLite.csproj", "backend/Deviot.Hermes.Infra.SQLite/"]
 RUN dotnet restore "backend/Deviot.Hermes.Api/Deviot.Hermes.Api.csproj"
 COPY . .
 WORKDIR "/backend/backend/Deviot.Hermes.Api"

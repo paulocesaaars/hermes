@@ -31,9 +31,7 @@ namespace Deviot.Hermes.Domain.Entities
 
         public void SetName(string value) => Name = value;
 
-        public void SetType(int value) => TypeId = value;
-
-        public void SetType(DeviceTypeEnumeration value) => TypeId = value.Id;
+        public void SetEnable(bool value) => Enable = value;
 
         public void SetConfiguration(string value) => Configuration = value;
     }

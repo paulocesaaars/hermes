@@ -21,7 +21,6 @@ namespace Deviot.Hermes.Infra.SQLite.Configuration
             services.AddDbContext<ApplicationDbContext>(opt =>
                 opt.UseSqlite(sqliteConnection));
 
-
             services.AddScoped<ApplicationDbContext>();
             services.AddScoped<IRepositorySQLite, RepositorySQLite>();
             services.AddScoped<IMigrationService, MigrationService>();

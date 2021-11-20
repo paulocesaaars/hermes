@@ -59,14 +59,15 @@ namespace Deviot.Hermes.Api.Controllers.V1
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<DeviceViewModel>>> GetAllAsync(string name = "", int take = 1000, int skip = 0)
+        public async Task<ActionResult<IEnumerable<DeviceViewModel>?>> GetAllAsync(string name = "")
         {
             try
             {
-                return CustomResponse(await _deviceService.GetAllAsync(name, take, skip));
+                return CustomResponse(await _deviceService.GetAllAsync(name));
             }
             catch (Exception exception)
             {
@@ -112,7 +113,7 @@ namespace Deviot.Hermes.Api.Controllers.V1
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpPost]
-        public async Task<ActionResult> PostAsync([FromBody] DeviceViewModel deviceViewModel)
+        public async Task<ActionResult<DeviceViewModel>> PostAsync([FromBody] DeviceViewModel deviceViewModel)
         {
             try
             {
@@ -122,9 +123,7 @@ namespace Deviot.Hermes.Api.Controllers.V1
                 if (deviceViewModel.Id == Guid.Empty)
                     deviceViewModel.Id = Guid.NewGuid();
 
-                await _deviceService.InsertAsync(deviceViewModel);
-
-                return CustomResponse();
+                return CustomResponse(await _deviceService.InsertAsync(deviceViewModel));
             }
             catch (Exception exception)
             {
@@ -139,7 +138,7 @@ namespace Deviot.Hermes.Api.Controllers.V1
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpPut("{id}")]
-        public async Task<ActionResult> PutAsync(Guid id, [FromBody] DeviceViewModel deviceViewModel)
+        public async Task<ActionResult<DeviceViewModel>> PutAsync(Guid id, [FromBody] DeviceViewModel deviceViewModel)
         {
             try
             {
@@ -149,9 +148,7 @@ namespace Deviot.Hermes.Api.Controllers.V1
                 if(id != deviceViewModel.Id)
                     return ReturnActionResultForInvalidId();
 
-                await _deviceService.UpdateAsync(deviceViewModel);
-
-                return CustomResponse();
+                return CustomResponse(await _deviceService.UpdateAsync(deviceViewModel));
             }
             catch (Exception exception)
             {
@@ -159,7 +156,7 @@ namespace Deviot.Hermes.Api.Controllers.V1
             }
         }
 
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Deviot.Hermes.Application.Services
@@ -26,6 +27,7 @@ namespace Deviot.Hermes.Application.Services
         private const string USER_UPDATED = "O usuário foi atualizado com sucesso";
         private const string USER_DELETED = "O usuário foi deletado com sucesso";
         private const string USER_NOT_FOUND = "O usuário não foi encontrado";
+        private const string USERS_NO_CONTENT = "Nenhum usuário foi encontrado";
         private const string INVALID_PASSWORD = "Senha inválida";
         private const string USERNAME_ALREADY_EXISTS = "O nome de usuário informado já existe";
         private const string CHANGE_ANOTHER_USER_DATA = "Não é permitido alterar dados de outro usuário";
@@ -139,7 +141,7 @@ namespace Deviot.Hermes.Application.Services
             }
         }
 
-        public async Task<IEnumerable<UserInfoViewModel>> GetAllAsync(string name = "", int take = 1000, int skip = 0)
+        public async Task<IEnumerable<UserInfoViewModel>> GetAllAsync(string name)
         {
             try
             {
@@ -149,9 +151,10 @@ namespace Deviot.Hermes.Application.Services
                     query = query.Where(u => EF.Functions.Like(u.FullName.ToLower(), $"%{name.ToLower()}%"));
 
                 var users = await query.OrderBy(x => x.UserName)
-                                       .Take(take)
-                                       .Skip(skip)
                                        .ToListAsync();
+
+                if (!users.Any())
+                    NotifyNoContent(USERS_NO_CONTENT);
 
                 return _mapper.Map<IEnumerable<UserInfoViewModel>>(users);
             }
@@ -190,7 +193,7 @@ namespace Deviot.Hermes.Application.Services
             }
         }
 
-        public async Task InsertAsync(UserViewModel userViewModel)
+        public async Task<UserInfoViewModel> InsertAsync(UserViewModel userViewModel)
         {
             try
             {
@@ -210,7 +213,9 @@ namespace Deviot.Hermes.Application.Services
                             var user = _mapper.Map<User>(userViewModel);
                             user.SetPassword(Utils.Encript(user.Password));
                             await _repository.AddAsync<User>(user);
-                            NotifyCreated(USER_CREATED);
+
+                            NotifyCreated(user.Id.ToString(), USER_CREATED);
+                            return _mapper.Map<UserInfoViewModel>(user);
                         }
                     }
                 }
@@ -219,9 +224,11 @@ namespace Deviot.Hermes.Application.Services
             {
                 NotifyInternalServerError(exception);
             }
+
+            return null;
         }
 
-        public async Task UpdateAsync(UserInfoViewModel userInfoViewModel)
+        public async Task<UserInfoViewModel> UpdateAsync(UserInfoViewModel userInfoViewModel)
         {
             try
             {
@@ -237,7 +244,7 @@ namespace Deviot.Hermes.Application.Services
                         {
                             if (user.Administrator && (!userInfoViewModel.Administrator || !userInfoViewModel.Enabled))
                                 if (!await CheckForDisabledOrDeleteAdministratorAsync(userInfoViewModel.Id))
-                                    return;
+                                    return null;
 
                             var check = await CheckUserNameExistAsync(userInfoViewModel);
                             if (check)
@@ -253,6 +260,7 @@ namespace Deviot.Hermes.Application.Services
 
                                 await _repository.EditAsync<User>(user);
                                 NotifyOk(USER_UPDATED);
+                                return _mapper.Map<UserInfoViewModel>(user);
                             }
                         }
                         else
@@ -266,6 +274,8 @@ namespace Deviot.Hermes.Application.Services
             {
                 NotifyInternalServerError(exception);
             }
+
+            return null;
         }
 
         public async Task ChangePasswordAsync(UserPasswordViewModel userPasswordViewModel)
@@ -317,7 +327,7 @@ namespace Deviot.Hermes.Application.Services
                         return;
 
                 await _repository.DeleteAsync<User>(user);
-                NotifyOk(USER_DELETED);
+                NotifyNoContent(USER_DELETED);
             }
         }
     }

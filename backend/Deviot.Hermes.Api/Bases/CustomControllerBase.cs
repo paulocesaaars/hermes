@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Text.Json;
 
 namespace Deviot.Hermes.Api.Bases
@@ -86,13 +87,14 @@ namespace Deviot.Hermes.Api.Bases
                 }
                 else if (notifies.Any(x => x.Type == HttpStatusCode.NoContent))
                 {
-                    httpStatusCode = HttpStatusCode.NoContent;
-                    messages.Add(notifies.First(x => x.Type == HttpStatusCode.NoContent).Message);
+                    return NoContent();
                 }
                 else if (notifies.Any(x => x.Type == HttpStatusCode.Created))
                 {
                     httpStatusCode = HttpStatusCode.Created;
-                    messages.Add(notifies.First(x => x.Type == HttpStatusCode.Created).Message);
+                    var notify = notifies.First(x => x.Type == HttpStatusCode.Created);
+                    messages.Add(notify.Message);
+                    Response.Headers.Location = $"{Url.RouteUrl(HttpContext.Request.RouteValues)}/{notify.Id}";
                 }
                 else if (notifies.Any(x => x.Type == HttpStatusCode.OK))
                 {

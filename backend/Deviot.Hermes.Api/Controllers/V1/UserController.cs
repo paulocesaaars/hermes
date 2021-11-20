@@ -41,14 +41,15 @@ namespace Deviot.Hermes.Api.Controllers.V1
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<UserInfoViewModel>>> GetAllAsync(string name = "", int take = 1000, int skip = 0)
+        public async Task<ActionResult<IEnumerable<UserInfoViewModel>>> GetAllAsync(string name)
         {
             try
             {
-                return CustomResponse(await _userService.GetAllAsync(name, take, skip));
+                return CustomResponse(await _userService.GetAllAsync(name));
             }
             catch (Exception exception)
             {
@@ -101,9 +102,7 @@ namespace Deviot.Hermes.Api.Controllers.V1
                 if (userModelView.Id == Guid.Empty)
                     userModelView.Id = Guid.NewGuid();
 
-                await _userService.InsertAsync(userModelView);
-
-                return CustomResponse();
+                return CustomResponse(await _userService.InsertAsync(userModelView));
             }
             catch (Exception exception)
             {
@@ -125,9 +124,7 @@ namespace Deviot.Hermes.Api.Controllers.V1
                 if(id != userInfoViewModel.Id)
                     return ReturnActionResultForInvalidId();
 
-                await _userService.UpdateAsync(userInfoViewModel);
-
-                return CustomResponse();
+                return CustomResponse(await _userService.UpdateAsync(userInfoViewModel));
             }
             catch (Exception exception)
             {
@@ -158,7 +155,7 @@ namespace Deviot.Hermes.Api.Controllers.V1
             }
         }
 
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

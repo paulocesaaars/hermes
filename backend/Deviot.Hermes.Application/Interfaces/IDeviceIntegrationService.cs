@@ -17,5 +17,7 @@ namespace Deviot.Hermes.Application.Interfaces
         Task DeleteDriveAsync(Guid id);
 
         Task<object> GetDataAsync(Guid id);
+
+        Task WriteDataAsync(object value);
     }
 }

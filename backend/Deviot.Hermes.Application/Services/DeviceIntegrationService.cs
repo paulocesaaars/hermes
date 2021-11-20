@@ -2,6 +2,7 @@
 using Deviot.Hermes.Domain.Entities;
 using Deviot.Hermes.Domain.Interfaces;
 using Deviot.Hermes.Infra.SQLite.Interfaces;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -15,7 +16,7 @@ namespace Deviot.Hermes.Application.Services
     public class DeviceIntegrationService : IDeviceIntegrationService
     {
         private List<IDrive> _drives = new List<IDrive>();
-
+        private readonly IWebHostEnvironment _environment;
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<DeviceIntegrationService> _logger;
 
@@ -28,18 +29,32 @@ namespace Deviot.Hermes.Application.Services
         private const string ERROR_UPDATE = "Houve um problema ao atualizar o dispositivo {name}.";
         private const string ERROR_DELETE = "Houve um problema ao deletar o dispositivo {name}.";
 
-        public DeviceIntegrationService(ILogger<DeviceIntegrationService> logger, IServiceProvider serviceProvider)
+        public DeviceIntegrationService(ILogger<DeviceIntegrationService> logger,
+                                        IWebHostEnvironment environment,
+                                        IServiceProvider serviceProvider)
         {
             _logger = logger;
+            _environment = environment;
             _serviceProvider = serviceProvider;
         }
 
-        private async Task InitializeDrivesAsync()
+        private async Task InitializeAsync()
         {
             try
             {
                 using (var scope = _serviceProvider.CreateScope())
                 {
+                    // Executa migration
+                    var _migrationService = scope.ServiceProvider.GetRequiredService<IMigrationService>();
+                    if (_environment.EnvironmentName == "Development")
+                        _migrationService.Deleted();
+
+                    _migrationService.Execute();
+
+                    if (_environment.EnvironmentName == "Testing")
+                        _migrationService.Populate();
+
+                    // Inicializa drivers
                     var repository = scope.ServiceProvider.GetRequiredService<IRepositorySQLite>();
                     var driveFactory = scope.ServiceProvider.GetRequiredService<IDriveFactory>();
 
@@ -58,7 +73,7 @@ namespace Deviot.Hermes.Application.Services
 
         public async Task StartAsync()
         {
-            await InitializeDrivesAsync();
+            await InitializeAsync();
             if (_drives.Any())
             {
                 foreach (var driver in _drives)
@@ -97,23 +112,20 @@ namespace Deviot.Hermes.Application.Services
 
         public async Task AddDriveAsync(Device device)
         {
-            if (!_drives.Any(x => x.Id == device.Id))
+            try
             {
-                try
+                using (var scope = _serviceProvider.CreateScope())
                 {
-                    using (var scope = _serviceProvider.CreateScope())
-                    {
-                        var driveFactory = scope.ServiceProvider.GetRequiredService<IDriveFactory>();
-                        var drive = driveFactory.GenerateDrive(device);
-                        _drives.Add(drive);
-                        drive.Start();
-                    }
+                    var driveFactory = scope.ServiceProvider.GetRequiredService<IDriveFactory>();
+                    var drive = driveFactory.GenerateDrive(device);
+                    _drives.Add(drive);
+                    drive.Start();
                 }
-                catch (Exception exception)
-                {
-                    _logger.LogError(ERROR_STOP);
-                    _logger.LogError(exception.Message);
-                }
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(ERROR_STOP);
+                _logger.LogError(exception.Message);
             }
         }
 
@@ -167,6 +179,11 @@ namespace Deviot.Hermes.Application.Services
             }
 
             return null;
+        }
+
+        public Task WriteDataAsync(object value)
+        {
+            throw new NotImplementedException();
         }
     }
 }

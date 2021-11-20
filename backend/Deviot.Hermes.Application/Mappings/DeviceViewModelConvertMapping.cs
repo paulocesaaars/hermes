@@ -39,6 +39,7 @@ namespace Deviot.Hermes.Application.Mappings
             {
                 Id = source.Id,
                 Name = source.Name,
+                Enable = source.Enable,
                 Type = type,
                 TypeId = source.TypeId,
                 Configuration = configuration
