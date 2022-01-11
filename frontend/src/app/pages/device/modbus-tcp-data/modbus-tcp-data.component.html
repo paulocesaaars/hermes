@@ -1,0 +1,109 @@
+<app-title></app-title>
+<div class="deviot-container">
+  <mat-toolbar>
+    <span>INFORMAÇÕES DO DISPOSITIVO</span>
+  </mat-toolbar>
+  <div class="deviot-info">
+    <p><b>Id:</b> {{ id | uppercase }}</p>
+    <p><b>Nome do dispositivo:</b> {{ name | uppercase }}</p>
+  </div>
+  <mat-toolbar>
+    <span>DADOS DO DISPOSITIVO</span>
+  </mat-toolbar>
+    <table mat-table [dataSource]="data_source">
+      <ng-container matColumnDef="address">
+        <th mat-header-cell *matHeaderCellDef>Endereço</th>
+        <td mat-cell *matCellDef="let item">
+          {{ item.address | number: "3.0-0" }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="coil">
+        <th mat-header-cell *matHeaderCellDef class="deviot-coil">
+          Entradas digitais
+        </th>
+        <td
+          mat-cell
+          *matCellDef="let item"
+          class="deviot-coil"
+          [ngClass]="
+            item.coil != null
+              ? item.coilQuality
+                ? 'deviot-good'
+                : 'deviot-bad'
+              : ''
+          "
+        >
+          {{ item.coil ?? "-" }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="discrete">
+        <th mat-header-cell *matHeaderCellDef class="deviot-discrete">
+          Saídas digitais
+        </th>
+        <td
+          mat-cell
+          *matCellDef="let item"
+          class="deviot-discrete"
+          [ngClass]="
+            item.discrete != null
+              ? item.discreteQuality
+                ? 'deviot-good'
+                : 'deviot-bad'
+              : ''
+          "
+        >
+          {{ item.discrete ?? "-" }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="holdingRegister" class="deviot-discrete">
+        <th mat-header-cell *matHeaderCellDef class="deviot-holdingRegister">
+          Entradas analógicas
+        </th>
+        <td
+          mat-cell
+          *matCellDef="let item"
+          class="deviot-holdingRegister"
+          [ngClass]="
+            item.holdingRegister != null
+              ? item.holdingRegisterQuality
+                ? 'deviot-good'
+                : 'deviot-bad'
+              : ''
+          "
+        >
+          {{ item.holdingRegister ?? "-" }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="inputRegister">
+        <th mat-header-cell *matHeaderCellDef class="deviot-inputRegister">
+          Saídas analógicas
+        </th>
+        <td
+          mat-cell
+          *matCellDef="let item"
+          class="deviot-inputRegister"
+          [ngClass]="
+            item.inputRegister != null
+              ? item.inputRegisterQuality
+                ? 'deviot-good'
+                : 'deviot-bad'
+              : ''
+          "
+        >
+          {{ item.inputRegister ?? "-" }}
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+  <div class="deviot-bottom">
+    <button mat-stroked-button color="basic" [routerLink]="['/device']">
+      VOLTAR
+    </button>
+  </div>
+</div>

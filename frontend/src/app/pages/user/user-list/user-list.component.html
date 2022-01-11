@@ -69,13 +69,5 @@
         <mat-icon>delete</mat-icon>
       </button>
     </div>
-    <mat-paginator
-      [length]="totalRegisters"
-      [pageSize]="10"
-      [pageIndex]="0"
-      [pageSizeOptions]="[10, 100, 1000]"
-      (page)="changePaginator($event)"
-    >
-    </mat-paginator>
   </ng-template>
 </div>

@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Deviot.Common;
-using Deviot.Hermes.Application.Bases;
 using Deviot.Hermes.Application.Interfaces;
 using Deviot.Hermes.Application.ViewModels;
 using Deviot.Hermes.Domain.Entities;

@@ -1,0 +1,16 @@
+<p><b>Ip:</b> {{ device?.configuration.ip | uppercase }}</p>
+<p><b>Porta:</b>{{ device?.configuration.port }}</p>
+<p><b>Scan:</b> {{ device?.configuration.scan }} milisegundos</p>
+<p>
+  <b>Número máximo de tentativas:</b>
+  {{ device?.configuration.maxNumberOfReadAttempts }}
+</p>
+<p><b>Entradas digitais:</b> {{ device?.configuration.numberOfCoils }}</p>
+<p><b>Saídas digitais:</b> {{ device?.configuration.numberOfDiscrete }}</p>
+<p>
+  <b>Entradas analógicas:</b>
+  {{ device?.configuration.numberOfHoldingRegisters }}
+</p>
+<p>
+  <b>Saídas analógicas:</b> {{ device?.configuration.numberOfInputRegisters }}
+</p>

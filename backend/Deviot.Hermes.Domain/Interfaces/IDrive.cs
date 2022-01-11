@@ -1,5 +1,6 @@
 ﻿using Deviot.Hermes.Domain.Entities;
 using Deviot.Hermes.Domain.Enumerators;
+using FluentValidation.Results;
 using System;
 using System.Threading.Tasks;
 
@@ -17,15 +18,17 @@ namespace Deviot.Hermes.Domain.Interfaces
 
         public bool StatusConnection { get; }
 
-        public void SetDevice(Device device);
+        public ValidationResult ValidateConfiguration(string deviceConfiguration);
 
-        public void Start();
+        public Task SetConfiguration(Device device);
 
-        public void Stop();
+        public Task StartAsync();
 
-        public Task UpdateDriveAsync(Device device);
+        public Task StopAsync();
 
         public Task<object> GetDataAsync();
+
+        public ValidationResult ValidateWriteData(string data);
 
         public Task SetDataAsync(string data);
     }

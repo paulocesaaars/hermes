@@ -1,10 +1,10 @@
-﻿using Deviot.Hermes.Application.Interfaces;
+﻿using AutoMapper;
+using Deviot.Common;
+using Deviot.Hermes.Application.Interfaces;
+using Deviot.Hermes.Application.ViewModels;
 using Deviot.Hermes.Domain.Entities;
-using Deviot.Hermes.Domain.Interfaces;
 using Deviot.Hermes.Infra.SQLite.Interfaces;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+using FluentValidation;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -13,154 +13,167 @@ using System.Threading.Tasks;
 
 namespace Deviot.Hermes.Application.Services
 {
-    public class DeviceIntegrationService : IDeviceIntegrationService
+    public class DeviceIntegrationService : ServiceBase, IDeviceIntegrationService
     {
-        private List<IDrive> _drives = new List<IDrive>();
-        private readonly IWebHostEnvironment _environment;
-        private readonly IServiceProvider _serviceProvider;
-        private readonly ILogger<DeviceIntegrationService> _logger;
+        private readonly IAuthService _authService;
+        private readonly IDriveFactory _driveFactory;
+        private readonly IDeviceService _deviceService;
+        private readonly IValidator<DeviceViewModel> _deviceValidator;
+        private readonly IDriverService _deviceBackgroundService;
 
         private const string NAME = "{name}";
-        private const string ERROR_INITIALIZE = "";
-        private const string ERROR_START = "Houve ao iniciar o driver";
-        private const string ERROR_STOP = "Houve ao parar o driver";
-        private const string ERROR_GET_DATA = "Houve um problema ao ler os dados do dispositivo";
-        private const string ERROR_SET_DATA = "Houve um problema ao escrever os dados no dispositivo";
-        private const string ERROR_UPDATE = "Houve um problema ao atualizar o dispositivo {name}.";
-        private const string ERROR_DELETE = "Houve um problema ao deletar o dispositivo {name}.";
+        private const string DEVICE_AUTHORIZATION = "Somente administradores podem realizar essa operação";
+        private const string DEVICE_NOT_FOUND = "O dispositivo não foi encontrado";
 
-        public DeviceIntegrationService(ILogger<DeviceIntegrationService> logger,
-                                        IWebHostEnvironment environment,
-                                        IServiceProvider serviceProvider)
+        public DeviceIntegrationService(INotifier notifier,
+                                        ILogger<DeviceIntegrationService> logger,
+                                        IMapper mapper,
+                                        IRepositorySQLite repository,
+                                        IAuthService authService,
+                                        IDriveFactory driveFactory,
+                                        IDeviceService deviceService,
+                                        IValidator<DeviceViewModel> deviceValidator,
+                                        IDriverService deviceBackgroundService
+                                        ) : base(notifier, logger, mapper, repository)
         {
-            _logger = logger;
-            _environment = environment;
-            _serviceProvider = serviceProvider;
+            _authService = authService;
+            _driveFactory = driveFactory;
+            _deviceService = deviceService;
+            _deviceValidator = deviceValidator;
+            _deviceBackgroundService = deviceBackgroundService;
         }
 
-        private async Task InitializeAsync()
+        private bool CheckAuthorization()
+        {
+            var loggedUser = _authService.GetLoggedUser();
+            if (loggedUser.Administrator)
+                return true;
+
+            NotifyForbidden(DEVICE_AUTHORIZATION);
+            return false;
+        }
+
+        public async Task<DeviceViewModel> GetAsync(Guid id) 
         {
             try
             {
-                using (var scope = _serviceProvider.CreateScope())
+                var device = await _deviceService.GetAsync(id);
+                return _mapper.Map<DeviceViewModel>(device);
+            }
+            catch (Exception exception)
+            {
+                NotifyInternalServerError(exception);
+                return null;
+            }
+        }
+
+        public async Task<IEnumerable<DeviceInfoViewModel>> GetAllAsync(string name = "")
+        {
+            try
+            {
+                var devices = await _deviceService.GetAllAsync(name);
+                var drives = await _deviceBackgroundService.GetDrivesAsync();
+
+                var devicesInfoView = _mapper.Map<IEnumerable<DeviceInfoViewModel>>(devices);
+                foreach (var deviceInfoView in devicesInfoView)
+                    deviceInfoView.StatusConnection = drives.First(x => x.Id == deviceInfoView.Id).StatusConnection;
+
+                return devicesInfoView;
+            }
+            catch (Exception exception)
+            {
+                NotifyInternalServerError(exception);
+                return null;
+            }
+        }
+
+        public async Task<bool> CheckNameExistAsync(string name) => await _deviceService.CheckNameExistAsync(name);
+
+        public async Task<long> TotalRegistersAsync() => await _deviceService.TotalRegistersAsync();
+
+        public async Task<DeviceViewModel> InsertAsync(DeviceViewModel deviceViewModel)
+        {
+            try
+            {
+                if(CheckAuthorization())
                 {
-                    // Executa migration
-                    var _migrationService = scope.ServiceProvider.GetRequiredService<IMigrationService>();
-                    if (_environment.EnvironmentName == "Development")
-                        _migrationService.Deleted();
+                    if (Validate<DeviceViewModel>(_deviceValidator, deviceViewModel))
+                    {
+                        var device = _mapper.Map<Device>(deviceViewModel);
+                        var drive = _driveFactory.GenerateDrive(device);
+                        var validationResult = drive.ValidateConfiguration(device.Configuration);
+                        if (validationResult.IsValid)
+                        {
+                            if (await _deviceService.InsertAsync(device) is null) return null;
 
-                    _migrationService.Execute();
+                            await drive.SetConfiguration(device);
+                            await _deviceBackgroundService.AddDriveAsync(drive);
+                            return _mapper.Map<DeviceViewModel>(device);
+                        }
 
-                    if (_environment.EnvironmentName == "Testing")
-                        _migrationService.Populate();
-
-                    // Inicializa drivers
-                    var repository = scope.ServiceProvider.GetRequiredService<IRepositorySQLite>();
-                    var driveFactory = scope.ServiceProvider.GetRequiredService<IDriveFactory>();
-
-                    var devices = await repository.Get<Device>().ToListAsync();
-
-                    foreach (var device in devices)
-                        _drives.Add(driveFactory.GenerateDrive(device));
+                        foreach (var message in validationResult.Errors)
+                            NotifyBadRequest(message.ErrorMessage);
+                    }
                 }
             }
             catch (Exception exception)
             {
-                _logger.LogError(ERROR_INITIALIZE);
-                _logger.LogError(exception.Message);
+                NotifyInternalServerError(exception);
             }
+
+            return null;
         }
 
-        public async Task StartAsync()
-        {
-            await InitializeAsync();
-            if (_drives.Any())
-            {
-                foreach (var driver in _drives)
-                {
-                    try
-                    {
-                        driver.Start();
-                    }
-                    catch (Exception exception)
-                    {
-                        _logger.LogError(ERROR_START);
-                        _logger.LogError(exception.Message);
-                    }
-                }
-            }
-        }
-
-        public async Task StopAsync()
-        {
-            if (_drives.Any())
-            {
-                foreach (var driver in _drives)
-                {
-                    try
-                    {
-                        driver.Stop();
-                    }
-                    catch (Exception exception)
-                    {
-                        _logger.LogError(ERROR_STOP);
-                        _logger.LogError(exception.Message);
-                    }
-                }
-            }
-        }
-
-        public async Task AddDriveAsync(Device device)
+        public async Task<DeviceViewModel> UpdateAsync(DeviceViewModel deviceViewModel)
         {
             try
             {
-                using (var scope = _serviceProvider.CreateScope())
+                if (CheckAuthorization())
                 {
-                    var driveFactory = scope.ServiceProvider.GetRequiredService<IDriveFactory>();
-                    var drive = driveFactory.GenerateDrive(device);
-                    _drives.Add(drive);
-                    drive.Start();
+                    if (Validate<DeviceViewModel>(_deviceValidator, deviceViewModel))
+                    {
+                        var device = _mapper.Map<Device>(deviceViewModel);
+                        var drive = await _deviceBackgroundService.GetDriveAsync(device.Id);
+
+                        if (drive is null)
+                            NotifyNotFound(DEVICE_NOT_FOUND);
+
+                        var validationResult = drive.ValidateConfiguration(device.Configuration);
+                        if (validationResult.IsValid)
+                        {
+                            if (await _deviceService.UpdateAsync(device) is null)
+                                return null;
+
+                            await drive.SetConfiguration(device);
+                            return _mapper.Map<DeviceViewModel>(device); ;
+                        }
+
+                        foreach (var message in validationResult.Errors)
+                            NotifyBadRequest(message.ErrorMessage);
+                    }
                 }
             }
             catch (Exception exception)
             {
-                _logger.LogError(ERROR_STOP);
-                _logger.LogError(exception.Message);
+                NotifyInternalServerError(exception);
             }
+
+            return null;
         }
 
-        public async Task UpdateDriveAsync(Device device)
+        public async Task DeleteAsync(Guid id)
         {
             try
             {
-                var currentDrive = _drives.FirstOrDefault(x => x.Id == device.Id);
-                if (currentDrive is not null)
-                    await currentDrive.UpdateDriveAsync(device);
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(ERROR_UPDATE.Replace(NAME, device.Name));
-                _logger.LogError(exception.Message);
-            }
-        }
-
-        public async Task DeleteDriveAsync(Guid id)
-        {
-            var currentDrive = default(IDrive);
-            try
-            {
-                currentDrive = _drives.FirstOrDefault(x => x.Id == id);
-                if (currentDrive is not null)
+                if (CheckAuthorization())
                 {
-                    currentDrive.Stop();
-                    _drives.Remove(currentDrive);
+                    if(await _deviceService.DeleteAsync(id))
+                        await _deviceBackgroundService.DeleteDriveAsync(id);
                 }
             }
             catch (Exception exception)
             {
-                var name = currentDrive is null ? id.ToString() : currentDrive.Name;
-                _logger.LogError(ERROR_DELETE.Replace(NAME, name));
-                _logger.LogError(exception.Message);
+                NotifyInternalServerError(exception);
             }
         }
 
@@ -168,22 +181,46 @@ namespace Deviot.Hermes.Application.Services
         {
             try
             {
-                var currentDrive = _drives.FirstOrDefault(x => x.Id == id);
-                if (currentDrive is not null)
-                    return await currentDrive.GetDataAsync();
+                var drive = await _deviceBackgroundService.GetDriveAsync(id);
+
+                if (drive is null)
+                    NotifyNotFound(DEVICE_NOT_FOUND);
+
+                return await drive.GetDataAsync();
             }
             catch (Exception exception)
             {
-                _logger.LogError(ERROR_GET_DATA);
-                _logger.LogError(exception.Message);
+                NotifyInternalServerError(exception);
+                return null;
             }
-
-            return null;
         }
 
-        public Task WriteDataAsync(object value)
+        public async Task SetDataAsync(Guid id, object data)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (CheckAuthorization())
+                {
+                    var drive = await _deviceBackgroundService.GetDriveAsync(id);
+
+                    if (drive is null)
+                        NotifyNotFound(DEVICE_NOT_FOUND);
+
+                    var jsonData = Utils.Serializer(data);
+
+                    var validationResult = drive.ValidateWriteData(jsonData);
+
+                    if(!validationResult.IsValid)
+                        foreach (var message in validationResult.Errors)
+                            NotifyBadRequest(message.ErrorMessage);
+
+                    await drive.SetDataAsync(jsonData);
+                }
+            }
+            catch (Exception exception)
+            {
+                NotifyInternalServerError(exception);
+            }
         }
     }
 }

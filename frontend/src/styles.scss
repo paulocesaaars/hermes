@@ -37,6 +37,25 @@ a {
   }
 }
 
+.deviot-icon {
+  margin-right: 10px;
+  margin-left: 10px;
+}
+
+.deviot-not-found {
+  margin-top: 20px;
+  margin-left: 10px;
+}
+
+
+.deviot-bottom {
+  display: flex;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-color: rgb(223, 223, 223);
+  padding-top: 20px;
+}
+
 .deviot-card {
   display: flex;
   align-items: center;

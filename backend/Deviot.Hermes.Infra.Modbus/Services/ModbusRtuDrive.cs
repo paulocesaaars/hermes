@@ -1,6 +1,7 @@
 ﻿using Deviot.Hermes.Domain.Entities;
 using Deviot.Hermes.Domain.Enumerators;
 using Deviot.Hermes.Domain.Interfaces;
+using FluentValidation.Results;
 using System;
 using System.Threading.Tasks;
 
@@ -18,9 +19,12 @@ namespace Deviot.Hermes.Infra.Modbus.Services
 
         public bool StatusConnection => throw new NotImplementedException();
 
-        
-
         public Task<object> GetDataAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task SetConfiguration(Device device)
         {
             throw new NotImplementedException();
         }
@@ -30,22 +34,22 @@ namespace Deviot.Hermes.Infra.Modbus.Services
             throw new NotImplementedException();
         }
 
-        public void SetDevice(Device device)
+        public Task StartAsync()
         {
             throw new NotImplementedException();
         }
 
-        public void Start()
+        public Task StopAsync()
         {
             throw new NotImplementedException();
         }
 
-        public void Stop()
+        public ValidationResult ValidateConfiguration(string deviceConfiguration)
         {
             throw new NotImplementedException();
         }
 
-        public Task UpdateDriveAsync(Device device)
+        public ValidationResult ValidateWriteData(string data)
         {
             throw new NotImplementedException();
         }

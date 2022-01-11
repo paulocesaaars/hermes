@@ -23,15 +23,9 @@ namespace Deviot.Hermes.Application.Services
             try
             {
                 if(device.Type.Equals(DeviceTypeEnumeration.ModbusTcp))
-                {
-                    _modbusTcpDrive.SetDevice(device);
                     return _modbusTcpDrive;
-                }
                 else if (device.Type.Equals(DeviceTypeEnumeration.ModbusRtu))
-                {
-                    _modbusRtuDrive.SetDevice(device);
                     return _modbusRtuDrive;
-                }
 
                 return null;
             }

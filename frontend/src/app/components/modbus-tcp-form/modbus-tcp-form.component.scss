@@ -1,0 +1,58 @@
+form {
+  margin-top: 20px;
+}
+
+.deviot-forms {
+  margin-top: 20px;
+  display: grid;
+  grid: {
+    template: {
+      areas: "1 2 3 4";
+      columns: 1fr 1fr 1fr 1fr;
+    }
+  }
+
+  .deviot-form-ip {
+    display: grid;
+    padding-right: 10px;
+  }
+
+  .deviot-form-port {
+    display: grid;
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+
+  .deviot-form-scan {
+    display: grid;
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+
+  .deviot-form-attempts {
+    display: grid;
+    padding-left: 10px;
+  }
+
+  .deviot-form-coils {
+    display: grid;
+    padding-right: 10px;
+  }
+
+  .deviot-form-discrete {
+    display: grid;
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+
+  .deviot-form-holding {
+    display: grid;
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+
+  .deviot-form-input {
+    display: grid;
+    padding-left: 10px;
+  }
+}

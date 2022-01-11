@@ -1,23 +1,28 @@
-﻿using Deviot.Hermes.Domain.Entities;
+﻿using Deviot.Hermes.Application.ViewModels;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Deviot.Hermes.Application.Interfaces
 {
     public interface IDeviceIntegrationService
     {
-        Task StartAsync();
+        Task<DeviceViewModel> GetAsync(Guid id);
 
-        Task StopAsync();
+        Task<IEnumerable<DeviceInfoViewModel>> GetAllAsync(string name = "");
 
-        Task AddDriveAsync(Device device);
+        Task<bool> CheckNameExistAsync(string name);
 
-        Task UpdateDriveAsync(Device device);
+        Task<long> TotalRegistersAsync();
 
-        Task DeleteDriveAsync(Guid id);
+        Task<DeviceViewModel> InsertAsync(DeviceViewModel deviceViewModel);
+
+        Task<DeviceViewModel> UpdateAsync(DeviceViewModel deviceViewModel);
+
+        Task DeleteAsync(Guid id);
 
         Task<object> GetDataAsync(Guid id);
 
-        Task WriteDataAsync(object value);
+        Task SetDataAsync(Guid id, object data);
     }
 }

@@ -6,6 +6,7 @@
 
   <ItemGroup>
 	<PackageReference Include="Deviot.Common" Version="1.0.3.66" />
+	<PackageReference Include="FluentValidation" Version="10.3.4" />
   </ItemGroup>
 
 </Project>

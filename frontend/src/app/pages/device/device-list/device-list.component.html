@@ -3,8 +3,73 @@
   <mat-toolbar>
     <span>DISPOSITIVOS</span>
     <span class="deviot-spacer"></span>
-    <button mat-flat-button color="primary" >
+    <button
+      mat-flat-button
+      color="primary"
+      *ngIf="userLogin?.administrator ?? false"
+      [routerLink]="['/device/new']"
+    >
       ADICIONAR
     </button>
   </mat-toolbar>
+
+  <div class="deviot-filter">
+    <form (ngSubmit)="getDevices()" [formGroup]="form">
+      <mat-form-field appearance="outline" class="deviot-form">
+        <mat-label>Filtrar</mat-label>
+        <input type="text" matInput formControlName="name" />
+        <button type="submit" mat-button matSuffix mat-icon-button>
+          <mat-icon>search</mat-icon>
+        </button>
+      </mat-form-field>
+    </form>
+  </div>
+
+  <div class="deviot-not-found" *ngIf="devices.length == 0; else dispositivos">
+    Nenhum dispositivo foi encontrado.
+  </div>
+  <ng-template #dispositivos>
+    <div
+      *ngFor="let device of devices"
+      class="deviot-card"
+      [ngClass]="
+        device.enabled ? 'deviot-card-enabled' : 'deviot-card-disabled'
+      "
+    >
+      <mat-icon
+        aria-hidden="false"
+        aria-label="Usuario administrador"
+        class="deviot-icon"
+      >
+        routers
+      </mat-icon>
+      <div>
+        {{ device.name }}
+      </div>
+      <span class="deviot-spacer"></span>
+      <button
+        mat-icon-button
+        aria-label="Visualizar"
+        [routerLink]="['/device/view', device.id]"
+      >
+        <mat-icon>visibility</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        aria-label="Editar"
+        *ngIf="userLogin?.administrator ?? false"
+        [routerLink]="['/device/edit', device.id]"
+      >
+        <mat-icon>edit</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        aria-label="Deletar"
+        *ngIf="userLogin?.administrator ?? false"
+        (click)="remove(device.id)"
+      >
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+  </ng-template>
 </div>

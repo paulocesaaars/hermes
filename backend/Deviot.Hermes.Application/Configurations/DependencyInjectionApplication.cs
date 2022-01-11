@@ -7,7 +7,9 @@ using Deviot.Hermes.Application.Validators;
 using Deviot.Hermes.Application.ViewModels;
 using Deviot.Hermes.Domain.Interfaces;
 using Deviot.Hermes.Infra.Modbus.Configurations;
+using Deviot.Hermes.Infra.Modbus.Model;
 using Deviot.Hermes.Infra.Modbus.Services;
+using Deviot.Hermes.Infra.Modbus.Validators;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -31,17 +33,16 @@ namespace Deviot.Hermes.Application.Configurations
             services.AddScoped<IValidator<UserPasswordViewModel>>(v => new UserPasswordValidation());
             services.AddScoped<IValidator<DeviceViewModel>>(v => new DeviceValidation());
             services.AddScoped<IValidator<ModbusTcpConfiguration>>(v => new ModbusTcpConfigurationValidation());
+            services.AddScoped<IValidator<ModbusTcpWriteData>>(v => new ModbusTcpWriteDataValidation());
             services.AddScoped<IValidator<ModbusRtuConfiguration>>(v => new ModbusRtuConfigurationValidation());
 
             // Services
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ITokenService, TokenService>();
-            services.AddScoped<IDeviceService, DeviceService>();
-            services.AddScoped<IDeviceValidationService, DeviceValidationService>();
             services.AddScoped<IDriveFactory, DriveFactory>();
-
-            services.AddSingleton<IDeviceIntegrationService, DeviceIntegrationService>();
+            services.AddScoped<IDeviceService, DeviceService>();
+            services.AddScoped<IDeviceIntegrationService, DeviceIntegrationService>();
 
             // Drivers
             services.AddScoped<IModbusTcpDrive, ModbusTcpDrive>();
@@ -49,6 +50,7 @@ namespace Deviot.Hermes.Application.Configurations
 
             // Backgroundservices
             services.AddHostedService<MainBackgroundService>();
+            services.AddSingleton<IDriverService, DriverService>();
 
             return services;
         }

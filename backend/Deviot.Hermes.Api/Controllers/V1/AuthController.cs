@@ -1,6 +1,4 @@
-﻿using AutoMapper;
-using Deviot.Common;
-using Deviot.Hermes.Api.Bases;
+﻿using Deviot.Common;
 using Deviot.Hermes.Application.Interfaces;
 using Deviot.Hermes.Application.ViewModels;
 using Microsoft.AspNetCore.Authorization;

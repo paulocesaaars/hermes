@@ -1,0 +1,38 @@
+<app-title></app-title>
+<div class="deviot-container">
+  <mat-toolbar>
+    <span>EDITAR DISPOSITIVO</span>
+  </mat-toolbar>
+  <form novalidate [formGroup]="form" (ngSubmit)="save()">
+    <mat-form-field appearance="outline" class="deviot-form-name">
+      <mat-label>Nome do dispositivo</mat-label>
+      <input matInput formControlName="name" />
+      <mat-error *ngIf="form.controls['name'].hasError('required')">
+        O campo nome do dispositivo é requerido.
+      </mat-error>
+      <mat-error *ngIf="form.controls['name'].hasError('minlength')">
+        O campo nome do dispositivo precisa ter no mínimo 3 caracteres.
+      </mat-error>
+      <mat-error *ngIf="form.controls['name'].hasError('maxlength')">
+        O campo nome do dispositivo precisa ter no máximo 30 caracteres.
+      </mat-error>
+    </mat-form-field>
+
+    <div class="deviot-bt-enabled">
+      <mat-slide-toggle
+        color="primary"
+        [checked]="enabled"
+        (change)="enabled = !enabled"
+      >
+        {{ enabled ? "Habilitado" : "Desabilitado" }}
+      </mat-slide-toggle>
+    </div>
+    <div class="deviot-bottom">
+      <button mat-stroked-button color="basic" [routerLink]="['/device']">
+        CANCELAR
+      </button>
+      &nbsp; &nbsp;
+      <button mat-flat-button color="primary" type="submit">SALVAR</button>
+    </div>
+  </form>
+</div>

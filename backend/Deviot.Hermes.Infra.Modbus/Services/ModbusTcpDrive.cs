@@ -3,11 +3,15 @@ using Deviot.Hermes.Domain.Entities;
 using Deviot.Hermes.Domain.Enumerators;
 using Deviot.Hermes.Domain.Interfaces;
 using Deviot.Hermes.Infra.Modbus.Configurations;
+using Deviot.Hermes.Infra.Modbus.Enums;
+using Deviot.Hermes.Infra.Modbus.Model;
 using FluentModbus;
+using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Net;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,25 +19,26 @@ namespace Deviot.Hermes.Infra.Modbus.Services
 {
     public class ModbusTcpDrive : IModbusTcpDrive
     {
-        private ModbusDeviceDataBase _modbusDeviceDataBase;
+        private ModbusTcpManageData _modbusTcpManageData;
         private ModbusTcpConfiguration _modbusTcpConfiguration;
 
-        private readonly ModbusTcpClient _modbusClient;
+
         private readonly ILogger<ModbusTcpDrive> _logger;
+        private readonly ModbusTcpClient _modbusTcpClient;
+        private readonly Queue<ModbusTcpWriteData> _modbusWriteList;
+        private readonly IValidator<ModbusTcpWriteData> _dataValidator;
+        private readonly IValidator<ModbusTcpConfiguration> _configurationValidator;
         private readonly CancellationTokenSource _cancellationTokenSource;
 
         private const string ERROR_READ_COILS = "Houve um problema ao ler as entradas digitais";
         private const string ERROR_READ_DICRETE = "Houve um problema ao ler as saídas digitais";
         private const string ERROR_READ_HOLDING_REGISTERS = "Houve um problema ao ler as entradas analógicas";
         private const string ERROR_READ_INPUT_REGISTERS = "Houve um problema ao ler as saídas analógicas";
-        private const string ERROR_CONNECT = "Houve um problema ao se conectar no dispositivo";
-        private const string ERROR_DISCONNECT = "Houve um problema ao se desconectar no dispositivo";
-        private const string ERROR_EXECUTE = "Existe um erro não tratado no driver";
-        private const string ERROR_SET_CONFIGURATION = "Houve um problema ao gravar as configurações do dispositivo";
-        private const string ERROR_SET_DEVICE = "Houve um problema ao gravar as informações do dispositivo";
-        private const string ERROR_UPDATE_DEVICE = "Houve um problema ao atualizar as informações do dispositivo";
-        private const string ERROR_START = "Houve ao iniciar o driver";
-        private const string ERROR_STOP = "Houve ao parar o driver";
+        private const string ERROR_CONNECT = "Houve um problema ao conectar no dispositivo";
+        private const string ERROR_DISCONNECT = "Houve um problema ao desconectar no dispositivo";
+        private const string ERROR_EXECUTE = $"Existe um erro não tratado no dispositivo";
+        private const string ERROR_START = "Houve um problema ao iniciar o dispositivo";
+        private const string ERROR_STOP = "Houve um problema ao parar o dispositivo";
         private const string ERROR_GET_DATA = "Houve um problema ao ler os dados do dispositivo";
         private const string ERROR_SET_DATA = "Houve um problema ao escrever os dados no dispositivo";
 
@@ -45,25 +50,17 @@ namespace Deviot.Hermes.Infra.Modbus.Services
 
         public bool Enable { get; private set; }
 
-        public bool StatusConnection
-        {
-            get
-            {
-                try
-                {
-                    return _modbusClient.IsConnected;
-                }
-                catch (Exception)
-                {
-                    return false;
-                }
-            }
-        }
+        public bool StatusConnection { get; private set; }
 
-        public ModbusTcpDrive(ILogger<ModbusTcpDrive> logger)
+        public ModbusTcpDrive(ILogger<ModbusTcpDrive> logger,
+                              IValidator<ModbusTcpWriteData> dataValidator,
+                              IValidator<ModbusTcpConfiguration> configurationValidator)
         {
             _logger = logger;
-            _modbusClient = new ModbusTcpClient();
+            _dataValidator = dataValidator;
+            _configurationValidator = configurationValidator;
+            _modbusTcpClient = new ModbusTcpClient();
+            _modbusWriteList = new Queue<ModbusTcpWriteData>();
             _cancellationTokenSource = new CancellationTokenSource();
         }
 
@@ -72,18 +69,18 @@ namespace Deviot.Hermes.Infra.Modbus.Services
             try
             {
                 var quatity = _modbusTcpConfiguration.NumberOfCoils;
-                if (_modbusClient.IsConnected && Enable && quatity > 0)
+                if (_modbusTcpClient.IsConnected && Enable && quatity > 0)
                 {
-                    var result = _modbusClient.ReadCoils(0xFF, 0, quatity);
-                    _modbusDeviceDataBase.UpdateCoilsValues(result.ToArray());
+                    var result = _modbusTcpClient.ReadCoils(0xFF, 0, quatity);
+                    _modbusTcpManageData.UpdateCoilsValues(result);
                     return;
                 }
 
-                _modbusDeviceDataBase.UpdateCoilsToBadRequest();
+                _modbusTcpManageData.UpdateCoilsToBadRequest();
             }
             catch (Exception exception)
             {
-                _modbusDeviceDataBase.UpdateCoilsToBadRequest();
+                _modbusTcpManageData.UpdateCoilsToBadRequest();
                 _logger.LogError(ERROR_READ_COILS);
                 _logger.LogError(exception.Message);
             }
@@ -94,18 +91,18 @@ namespace Deviot.Hermes.Infra.Modbus.Services
             try
             {
                 var quatity = _modbusTcpConfiguration.NumberOfDiscrete;
-                if (_modbusClient.IsConnected && Enable && quatity > 0)
+                if (_modbusTcpClient.IsConnected && Enable && quatity > 0)
                 {
-                    var result = _modbusClient.ReadDiscreteInputs(0xFF, 0, quatity);
-                    _modbusDeviceDataBase.UpdateDiscreteValues(result.ToArray());
+                    var result = _modbusTcpClient.ReadDiscreteInputs(0xFF, 0, quatity);
+                    _modbusTcpManageData.UpdateDiscreteValues(result.ToArray());
                     return;
                 }
 
-                _modbusDeviceDataBase.UpdateDiscreteToBadRequest();
+                _modbusTcpManageData.UpdateDiscreteToBadRequest();
             }
             catch (Exception exception)
             {
-                _modbusDeviceDataBase.UpdateDiscreteToBadRequest();
+                _modbusTcpManageData.UpdateDiscreteToBadRequest();
                 _logger.LogError(ERROR_READ_DICRETE);
                 _logger.LogError(exception.Message);
             }
@@ -116,18 +113,18 @@ namespace Deviot.Hermes.Infra.Modbus.Services
             try
             {
                 var quatity = _modbusTcpConfiguration.NumberOfHoldingRegisters;
-                if (_modbusClient.IsConnected && Enable && quatity > 0)
+                if (_modbusTcpClient.IsConnected && Enable && quatity > 0)
                 {
-                    var result = _modbusClient.ReadHoldingRegisters<ushort>(0xFF, 0, quatity);
-                    _modbusDeviceDataBase.UpdateHoldingRegisterValues(result.ToArray());
+                    var result = _modbusTcpClient.ReadHoldingRegisters<ushort>(0xFF, 0, quatity);
+                    _modbusTcpManageData.UpdateHoldingRegisterValues(result.ToArray());
                     return;
                 }
 
-                _modbusDeviceDataBase.UpdateHoldingRegistersToBadRequest();
+                _modbusTcpManageData.UpdateHoldingRegistersToBadRequest();
             }
             catch (Exception exception)
             {
-                _modbusDeviceDataBase.UpdateHoldingRegistersToBadRequest();
+                _modbusTcpManageData.UpdateHoldingRegistersToBadRequest();
                 _logger.LogError(ERROR_READ_HOLDING_REGISTERS);
                 _logger.LogError(exception.Message);
             }
@@ -138,20 +135,49 @@ namespace Deviot.Hermes.Infra.Modbus.Services
             try
             {
                 var quatity = _modbusTcpConfiguration.NumberOfInputRegisters;
-                if (_modbusClient.IsConnected && Enable && quatity > 0)
+                if (_modbusTcpClient.IsConnected && Enable && quatity > 0)
                 {
-                    var result = _modbusClient.ReadInputRegisters<ushort>(0xFF, 0, quatity);
-                    _modbusDeviceDataBase.UpdateInputRegisterValues(result.ToArray());
+                    var result = _modbusTcpClient.ReadInputRegisters<ushort>(0xFF, 0, quatity);
+                    _modbusTcpManageData.UpdateInputRegisterValues(result.ToArray());
                     return;
                 }
 
-                _modbusDeviceDataBase.UpdateInputRegistersToBadRequest();
+                _modbusTcpManageData.UpdateInputRegistersToBadRequest();
             }
             catch (Exception exception)
             {
-                _modbusDeviceDataBase.UpdateInputRegistersToBadRequest();
+                _modbusTcpManageData.UpdateInputRegistersToBadRequest();
                 _logger.LogError(ERROR_READ_INPUT_REGISTERS);
                 _logger.LogError(exception.Message);
+            }
+        }
+
+        private void WriteData()
+        {
+            while(_modbusWriteList.Count > 0)
+            {
+                try
+                {
+                    var data = _modbusWriteList.Dequeue();
+                    if (_modbusTcpClient.IsConnected && Enable)
+                    {
+                        if (data.TypeData == ModbusTypeDataEnum.Coil)
+                        {
+                            var value = Boolean.Parse(data.Value);
+                            _modbusTcpClient.WriteSingleCoil(0xFF, data.Address, value);
+                        }
+                        else if (data.TypeData == ModbusTypeDataEnum.HoldingRegister)
+                        {
+                            var value = Int16.Parse(data.Value);
+                            _modbusTcpClient.WriteSingleRegister(0xFF, data.Address, value);
+                        }
+                    }
+                }
+                catch (Exception exception)
+                {
+                    _logger.LogError(ERROR_SET_DATA);
+                    _logger.LogError(exception.Message);
+                }
             }
         }
 
@@ -164,13 +190,14 @@ namespace Deviot.Hermes.Infra.Modbus.Services
                     if (!Enable)
                     {
                         Disconnect();
-                        _modbusDeviceDataBase.UpdateAllDataToBadRequest(true);
+                        _modbusTcpManageData.UpdateAllDataToBadRequest(true);
                         await Task.Delay(1000, _cancellationTokenSource.Token);
                         continue;
                     }
 
                     Connect();
 
+                    WriteData();
                     ReadCoils();
                     ReadDiscreteInputs();
                     ReadHoldingRegisters();
@@ -194,13 +221,17 @@ namespace Deviot.Hermes.Infra.Modbus.Services
         {
             try
             {
-                if (!_modbusClient.IsConnected && Enable)
-                    _modbusClient.Connect(new IPEndPoint(IPAddress.Parse(_modbusTcpConfiguration.Ip), _modbusTcpConfiguration.Port), ModbusEndianness.BigEndian);
+                if (!_modbusTcpClient.IsConnected && Enable)
+                    _modbusTcpClient.Connect(new IPEndPoint(IPAddress.Parse(_modbusTcpConfiguration.Ip), _modbusTcpConfiguration.Port), ModbusEndianness.BigEndian);
+
+                StatusConnection = true;
             }
             catch (Exception exception)
             {
                 _logger.LogError(ERROR_CONNECT);
                 _logger.LogError(exception.Message);
+
+                StatusConnection = false;
             }
         }
 
@@ -208,8 +239,8 @@ namespace Deviot.Hermes.Infra.Modbus.Services
         {
             try
             {
-                if (_modbusClient.IsConnected)
-                    _modbusClient.Disconnect();
+                if (_modbusTcpClient.IsConnected)
+                    _modbusTcpClient.Disconnect();
             }
             catch (Exception exception)
             {
@@ -218,59 +249,45 @@ namespace Deviot.Hermes.Infra.Modbus.Services
             }
         }
 
-        private void SetConfiguration(string configuration)
+        private ValidationResult ValidateConfiguration(ModbusTcpConfiguration modbusTcpConfiguration)
         {
-            try
-            {
-                _modbusTcpConfiguration = Utils.Deserializer<ModbusTcpConfiguration>(configuration);
-                _modbusDeviceDataBase = new ModbusDeviceDataBase(_modbusTcpConfiguration.NumberOfCoils, 
-                                             _modbusTcpConfiguration.NumberOfDiscrete, 
-                                             _modbusTcpConfiguration.NumberOfHoldingRegisters, 
-                                             _modbusTcpConfiguration.NumberOfInputRegisters,
-                                             _modbusTcpConfiguration.MaxNumberOfReadAttempts);
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(ERROR_SET_CONFIGURATION);
-                _logger.LogError(exception.Message);
-            }
+            return _configurationValidator.Validate(modbusTcpConfiguration);
         }
 
-        public void SetDevice(Device device)
+        private ValidationResult ValidateWriteData(ModbusTcpWriteData data) 
         {
-            try
-            {
-                SetConfiguration(device.Configuration);
-
-                Id = device.Id;
-                Name = device.Name;
-                Type = device.Type;
-                Enable = device.Enable;
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(ERROR_SET_DEVICE);
-                _logger.LogError(exception.Message);
-            }
+            return _dataValidator.Validate(data);
         }
 
-        public async Task UpdateDriveAsync(Device device)
+        public ValidationResult ValidateConfiguration(string deviceConfiguration)
         {
-            try
-            {
-                Enable = false;
-                await Task.Delay(500, _cancellationTokenSource.Token);
-
-                SetDevice(device);
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(ERROR_UPDATE_DEVICE);
-                _logger.LogError(exception.Message);
-            }
+            var modbusTcpConfiguration = Utils.Deserializer<ModbusTcpConfiguration>(deviceConfiguration);
+            return ValidateConfiguration(modbusTcpConfiguration);
         }
 
-        public void Start()
+        public async Task SetConfiguration(Device device)
+        {
+            var modbusTcpConfiguration = Utils.Deserializer<ModbusTcpConfiguration>(device.Configuration);
+            var validationResult = ValidateConfiguration(device.Configuration);
+            if (!validationResult.IsValid)
+                throw new Exception(validationResult.Errors[0].ErrorMessage);
+
+            Enable = false;
+            await Task.Delay(500, _cancellationTokenSource.Token);
+
+            Id = device.Id;
+            Name = device.Name;
+            Type = device.Type;
+            Enable = device.Enabled;
+            _modbusTcpConfiguration = modbusTcpConfiguration;
+            _modbusTcpManageData = new ModbusTcpManageData(modbusTcpConfiguration.NumberOfCoils,
+                                                          modbusTcpConfiguration.NumberOfDiscrete,
+                                                          modbusTcpConfiguration.NumberOfHoldingRegisters,
+                                                          modbusTcpConfiguration.NumberOfInputRegisters,
+                                                          modbusTcpConfiguration.MaxNumberOfReadAttempts);
+        }
+
+        public async Task StartAsync()
         {
             try
             {
@@ -283,7 +300,7 @@ namespace Deviot.Hermes.Infra.Modbus.Services
             }
         }
 
-        public void Stop()
+        public async Task StopAsync()
         {
             try
             {
@@ -301,7 +318,9 @@ namespace Deviot.Hermes.Infra.Modbus.Services
             try
             {
                 await Task.Delay(100, _cancellationTokenSource.Token);
-                return _modbusDeviceDataBase.GetData();
+                var data = _modbusTcpManageData.GetData();
+                var device = new ModbusTcpDevice(Id, Name, Type, Enable, StatusConnection);
+                return new ModbusTcpDeviceStatus(device, data);
             }
             catch (Exception exception)
             {
@@ -311,17 +330,21 @@ namespace Deviot.Hermes.Infra.Modbus.Services
             }
         }
 
+        public ValidationResult ValidateWriteData(string data)
+        {
+            var modbusTcpWriteData = Utils.Deserializer<ModbusTcpWriteData>(data);
+            return ValidateWriteData(modbusTcpWriteData);
+        }
+
         public async Task SetDataAsync(string data)
         {
-            try
-            {
-                throw new NotImplementedException();
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(ERROR_SET_DATA);
-                _logger.LogError(exception.Message);
-            }
+            var modbusTcpWriteData = Utils.Deserializer<ModbusTcpWriteData>(data);
+            var validationResult = ValidateWriteData(modbusTcpWriteData);
+
+            if (!validationResult.IsValid)
+                throw new Exception(validationResult.Errors[0].ErrorMessage);
+
+            _modbusWriteList.Enqueue(modbusTcpWriteData);
         }
     }
 }

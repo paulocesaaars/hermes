@@ -1,10 +1,10 @@
 <div class="deviot-login-page">
   <div class="deviot-login-box">
     <div class="deviot-logo">
-      <img
+      <!-- <img
         src="../../../assets/images/logo-login.png"
         alt="Modulo de prosução"
-      />
+      /> -->
     </div>
     <form (ngSubmit)="login()" [formGroup]="form" class="deviot-form">
       <mat-form-field appearance="outline" class="deviot-form-username">
@@ -41,7 +41,7 @@
         ENTRAR
       </button>
     </form>
-    <div class="deviot-bottom">
+    <div class="deviot-bottom-login">
       {{ errorMessage }}
     </div>
   </div>

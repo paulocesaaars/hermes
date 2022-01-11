@@ -1,0 +1,55 @@
+table {
+  width: 100%;
+  font-weight: bold;
+
+  th {
+    font-weight: bold;
+  }
+}
+
+.deviot-info {
+  margin: 20px 20px;
+}
+
+.deviot-good {
+  font-weight: bold;
+  color: green;
+}
+
+.deviot-bad {
+  font-weight: bold;
+  animation: blinking 1.5s infinite;
+}
+
+.deviot-coil {
+  width: 200px;
+  text-align: center;
+}
+
+.deviot-discrete {
+  width: 200px;
+  text-align: center;
+}
+
+.deviot-holdingRegister {
+  width: 200px;
+  text-align: center;
+}
+
+.deviot-inputRegister {
+  width: 200px;
+  text-align: center;
+}
+
+.deviot-bottom {
+  border: none;
+}
+
+@keyframes blinking {
+  0% {
+    color: red;
+  }
+  100% {
+    color: orange;
+  }
+}

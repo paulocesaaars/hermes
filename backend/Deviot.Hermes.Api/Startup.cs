@@ -1,5 +1,4 @@
 using Deviot.Hermes.Api.Configurations;
-using Deviot.Hermes.Infra.SQLite.Interfaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;

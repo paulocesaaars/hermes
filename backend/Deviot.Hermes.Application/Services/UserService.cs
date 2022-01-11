@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Deviot.Common;
-using Deviot.Hermes.Application.Bases;
 using Deviot.Hermes.Application.Interfaces;
 using Deviot.Hermes.Application.ViewModels;
 using Deviot.Hermes.Domain.Entities;
@@ -11,7 +10,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Deviot.Hermes.Application.Services

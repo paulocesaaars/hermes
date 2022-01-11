@@ -1,4 +1,4 @@
-﻿using Deviot.Hermes.Application.ViewModels;
+﻿using Deviot.Hermes.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -7,22 +7,18 @@ namespace Deviot.Hermes.Application.Interfaces
 {
     public interface IDeviceService
     {
-        Task<DeviceViewModel> GetAsync(Guid id);
+        Task<Device> GetAsync(Guid id);
 
-        Task<IEnumerable<DeviceViewModel>> GetAllAsync(string name = "");
+        Task<IEnumerable<Device>> GetAllAsync(string name = "");
 
         Task<bool> CheckNameExistAsync(string name);
 
         Task<long> TotalRegistersAsync();
 
-        Task<DeviceViewModel> InsertAsync(DeviceViewModel deviceViewModel);
+        Task<Device> InsertAsync(Device device);
 
-        Task<DeviceViewModel> UpdateAsync(DeviceViewModel deviceViewModel);
+        Task<Device> UpdateAsync(Device device);
 
-        Task DeleteAsync(Guid id);
-
-        Task<object> GetDataAsync(Guid id);
-
-        Task WriteDataAsync(object value);
+        Task<bool> DeleteAsync(Guid id);
     }
 }

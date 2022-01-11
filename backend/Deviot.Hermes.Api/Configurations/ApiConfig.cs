@@ -1,6 +1,7 @@
 ﻿using Deviot.Hermes.Api.Filters;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,14 +35,20 @@ namespace Deviot.Hermes.Api.Configurations
             if (env.IsDevelopment())
                 app.UseDeveloperExceptionPage();
 
+            app.UseHttpsRedirection();
+
+            // Habilitar integração com NGINX
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
+
             app.UseCors(c =>
             {
                 c.AllowAnyHeader();
                 c.AllowAnyMethod();
                 c.AllowAnyOrigin();
             });
-
-            app.UseHttpsRedirection();
 
             app.UseRouting();
 

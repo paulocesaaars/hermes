@@ -1,0 +1,89 @@
+<div>
+  <mat-toolbar>
+    <span>CONFIGURAÇÕES MODBUS-TCP</span>
+  </mat-toolbar>
+  <form novalidate [formGroup]="form">
+    <div class="deviot-forms">
+      <div>
+        <mat-form-field appearance="outline" class="deviot-form-ip">
+          <mat-label>IP</mat-label>
+          <input matInput formControlName="ip" />
+          <mat-error *ngIf="form.controls['ip'].hasError('required')">
+            O campo ip é requerido.
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div>
+        <mat-form-field appearance="outline" class="deviot-form-port">
+          <mat-label>Porta</mat-label>
+          <input matInput formControlName="ip" />
+          <mat-error *ngIf="form.controls['ip'].hasError('required')">
+            O campo porta é requerido.
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div>
+        <mat-form-field appearance="outline" class="deviot-form-port">
+          <mat-label>Scan</mat-label>
+          <input matInput formControlName="ip" />
+          <mat-error *ngIf="form.controls['ip'].hasError('required')">
+            O campo scan é requerido.
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div>
+        <mat-form-field appearance="outline" class="deviot-form-attempts">
+          <mat-label>Número de tentativas</mat-label>
+          <input matInput formControlName="ip" />
+          <mat-error *ngIf="form.controls['ip'].hasError('required')">
+            O campo número de tentativas é requerido.
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="deviot-forms">
+      <div>
+        <mat-form-field appearance="outline" class="deviot-form-coils">
+          <mat-label>Saídas digitais</mat-label>
+          <input matInput formControlName="ip" />
+          <mat-error *ngIf="form.controls['ip'].hasError('required')">
+            O campo saídas digitais é requerido.
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div>
+        <mat-form-field appearance="outline" class="deviot-form-discrete">
+          <mat-label>Entradas digitais</mat-label>
+          <input matInput formControlName="ip" />
+          <mat-error *ngIf="form.controls['ip'].hasError('required')">
+            O campo entradas digitais é requerido.
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div>
+        <mat-form-field appearance="outline" class="deviot-form-holding">
+          <mat-label>Saídas analógicas</mat-label>
+          <input matInput formControlName="ip" />
+          <mat-error *ngIf="form.controls['ip'].hasError('required')">
+            O campo saídas digitais é requerido.
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div>
+        <mat-form-field appearance="outline" class="deviot-form-input">
+          <mat-label>Entradas analógicas</mat-label>
+          <input matInput formControlName="ip" />
+          <mat-error *ngIf="form.controls['ip'].hasError('required')">
+            O campo entradas digitais é requerido.
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+  </form>
+</div>

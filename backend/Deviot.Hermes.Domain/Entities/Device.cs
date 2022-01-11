@@ -9,7 +9,7 @@ namespace Deviot.Hermes.Domain.Entities
 
         public int TypeId { get; private set; }
 
-        public bool Enable { get; private set; }
+        public bool Enabled { get; private set; }
 
         public string Configuration { get; private set; }
 
@@ -25,13 +25,13 @@ namespace Deviot.Hermes.Domain.Entities
             Id = id;
             Name = name;
             TypeId = typeId;
-            Enable = enable;
+            Enabled = enable;
             Configuration = configuration;
         }
 
         public void SetName(string value) => Name = value;
 
-        public void SetEnable(bool value) => Enable = value;
+        public void SetEnable(bool value) => Enabled = value;
 
         public void SetConfiguration(string value) => Configuration = value;
     }

@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
+#nullable disable
+
 namespace Deviot.Hermes.Infra.SQLite.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
@@ -13,8 +15,7 @@ namespace Deviot.Hermes.Infra.SQLite.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasAnnotation("ProductVersion", "5.0.10");
+            modelBuilder.HasAnnotation("ProductVersion", "6.0.0");
 
             modelBuilder.Entity("Deviot.Hermes.Domain.Entities.Device", b =>
                 {
@@ -26,7 +27,7 @@ namespace Deviot.Hermes.Infra.SQLite.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("Enable")
+                    b.Property<bool>("Enabled")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
@@ -42,7 +43,7 @@ namespace Deviot.Hermes.Infra.SQLite.Migrations
 
                     b.HasIndex("Name");
 
-                    b.ToTable("Device");
+                    b.ToTable("Device", (string)null);
                 });
 
             modelBuilder.Entity("Deviot.Hermes.Domain.Entities.User", b =>
@@ -80,7 +81,7 @@ namespace Deviot.Hermes.Infra.SQLite.Migrations
 
                     b.HasIndex("UserName", "Password", "Enabled");
 
-                    b.ToTable("User");
+                    b.ToTable("User", (string)null);
 
                     b.HasData(
                         new

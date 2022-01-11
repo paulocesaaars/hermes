@@ -1,11 +1,21 @@
-version: '3.4'
-
+version: "3.7"
+ 
 services:
-  app:
-    image: hermes.modbustcp.app
-    build:
-      context: .
-      dockerfile: WebApp-Dockerfile
-    ports:
-        - "80:80"
-        - "443:443"
+    hermes-server:
+        build:
+            context: .
+            dockerfile: Server-Dockerfile
+        ports:
+            - "80:80"
+            - "443:443"
+        restart: always
+    
+    hermes-api:
+        depends_on:
+            - hermes-server
+        build:
+            context: .
+            dockerfile: Api-Dockerfile
+        expose:
+            - "5000"
+        restart: always

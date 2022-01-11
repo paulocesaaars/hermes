@@ -1,5 +1,4 @@
 ﻿using Deviot.Common;
-using Deviot.Hermes.Application.Bases;
 using Deviot.Hermes.Application.ViewModels;
 using FluentValidation;
 

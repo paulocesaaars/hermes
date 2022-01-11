@@ -1,0 +1,32 @@
+<app-title></app-title>
+<div class="deviot-container">
+  <mat-toolbar>
+    <span>VISUALIZAR DISPOSITIVO</span>
+    <span class="deviot-spacer"></span>
+    <button
+      mat-flat-button
+      color="primary"
+      *ngIf="device?.enabled ?? false"
+      [routerLink]="['/device/modbus-tcp', device?.id]"
+    >
+      MONITORAR
+    </button>
+  </mat-toolbar>
+  <div class="deviot-data">
+    <p><b>Id:</b> {{ device?.id | uppercase }}</p>
+    <p><b>Nome do dispositivo:</b> {{ device?.name | uppercase }}</p>
+    <p><b>Tipo:</b> {{ device?.type?.name | uppercase }}</p>
+    <p>
+      <b>Status:</b>
+      {{ (device?.enabled ? "Habilitado" : "Desabilitado") | uppercase }}
+    </p>
+
+    <app-modbus-tcp-view [device]="device"></app-modbus-tcp-view>
+
+  </div>
+  <div class="deviot-bottom">
+    <button mat-stroked-button color="basic" [routerLink]="['/device']">
+      VOLTAR
+    </button>
+  </div>
+</div>

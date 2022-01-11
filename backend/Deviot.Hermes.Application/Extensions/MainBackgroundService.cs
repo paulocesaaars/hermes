@@ -10,10 +10,10 @@ namespace Deviot.Hermes.Application.Extensions
     public class MainBackgroundService : BackgroundService
     {
         private readonly ILogger<MainBackgroundService> _logger;
-        private readonly IDeviceIntegrationService _deviceIntegrationService;
+        private readonly IDriverService _deviceIntegrationService;
 
         public MainBackgroundService(ILogger<MainBackgroundService> logger, 
-                                     IDeviceIntegrationService deviceIntegrationService)
+                                     IDriverService deviceIntegrationService)
         {
             _logger = logger;
             _deviceIntegrationService = deviceIntegrationService;

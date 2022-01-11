@@ -8,7 +8,7 @@
 
         public EnumerationViewModel Type { get; set; }
 
-        public bool Enable { get; set; }
+        public bool Enabled { get; set; }
 
         public object Configuration { get; set; }
     }

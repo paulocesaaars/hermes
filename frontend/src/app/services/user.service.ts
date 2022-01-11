@@ -14,12 +14,10 @@ export class UserService extends BaseService {
   }
 
   getAll(
-    name: string = '',
-    take: number = 1000,
-    skip: number = 0
+    name: string = ''
   ): Observable<ResponseViewModel<UserInfoViewModel[]>> {
     return this.http.get<ResponseViewModel<UserInfoViewModel[]>>(
-      this.ApiUrlV1 + 'user?name=' + name + '&take=' + take + '&skip=' + skip,
+      this.ApiUrlV1 + 'user?name=' + name,
       this.getAuthHeaderJson()
     );
   }
@@ -31,13 +29,15 @@ export class UserService extends BaseService {
     );
   }
 
-  post(user: UserViewModel): Observable<ResponseViewModel<any>> {
+  post(user: UserViewModel): Observable<ResponseViewModel<UserInfoViewModel>> {
     return this.http
       .post(this.ApiUrlV1 + 'user', user, super.getAuthHeaderJson())
       .pipe(map(super.extractData), catchError(super.serviceError));
   }
 
-  put(user: UserInfoViewModel): Observable<ResponseViewModel<any>> {
+  put(
+    user: UserInfoViewModel
+  ): Observable<ResponseViewModel<UserInfoViewModel>> {
     return this.http
       .put(this.ApiUrlV1 + 'user/' + user.id, user, super.getAuthHeaderJson())
       .pipe(map(super.extractData), catchError(super.serviceError));
